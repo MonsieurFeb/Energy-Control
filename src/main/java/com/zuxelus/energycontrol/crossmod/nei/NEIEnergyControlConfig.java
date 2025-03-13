@@ -1,6 +1,6 @@
 package com.zuxelus.energycontrol.crossmod.nei;
 
-import com.zuxelus.energycontrol.EnergyControl;
+import com.myname.mymodid.Tags;
 
 import codechicken.nei.api.API;
 import codechicken.nei.api.IConfigureNEI;
@@ -15,7 +15,7 @@ public class NEIEnergyControlConfig implements IConfigureNEI {
 
     @Override
     public String getVersion() {
-        return EnergyControl.VERSION;
+        return Tags.VERSION;
     }
 
     @Override

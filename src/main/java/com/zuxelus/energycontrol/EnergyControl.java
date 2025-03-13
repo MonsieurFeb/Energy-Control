@@ -8,6 +8,7 @@ import net.minecraft.entity.player.EntityPlayer;
 
 import org.apache.logging.log4j.Logger;
 
+import com.myname.mymodid.Tags;
 import com.zuxelus.energycontrol.config.ConfigHandler;
 import com.zuxelus.energycontrol.crossmod.CraftTweakerIntegration;
 import com.zuxelus.energycontrol.crossmod.CrossModLoader;
@@ -31,14 +32,14 @@ import cpw.mods.fml.relauncher.SideOnly;
 
 @Mod(
     modid = EnergyControl.MODID,
-    version = EnergyControl.VERSION,
+    version = Tags.VERSION,
+    name = "MyMod",
     dependencies = "after:IC2",
     guiFactory = "com.zuxelus.energycontrol.config.GuiFactory",
     acceptedMinecraftVersions = "[1.7.10]")
 public class EnergyControl {
 
     public static final String MODID = "energycontrol";
-    public static final String VERSION = "@VERSION@";
 
     @SidedProxy(
         clientSide = "com.zuxelus.energycontrol.proxy.ClientProxy",
