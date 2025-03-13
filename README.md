@@ -1,3 +1,23 @@
+# This fork fix config disableCircuitRecipe
+Это мод от Zuxelus с моей доработкой.
+Здесь исправлен учёт конфига, теперь он работает.
+Также обновлён русский язык.
+
+Была проведена миграция с использованием [этого](https://github.com/GTNewHorizons/ExampleMod1.7.10/blob/master/docs/migration.md), для поддержки новых версий gradle и IntelliJ IDEA.
+
+
+По любым вопросам (правка перевода, файлы libs_ и т.д.) пишите на почту monsieurfeb@gmail.com
+
+## Build
+
+Для билда использовались IntelliJ IDEA 2023.2.8 и Oracle OpenJDK 17, gradle 8.12.1.
+
+Также пригодятся jar файлы в директории libs_, их список указан в dependencies.gradle - как и автор мода, я не стал загружать их в репозиторий.
+
+(Если при билде появилась ошибка, связанная с spotless - выполните команду .\gradlew.bat :spotlessApply в терминале)
+
+Далее оригинальный ReadMe.
+
 # Energy Control
 
 Energy Control is a remastered version of original Nuclear Control.
