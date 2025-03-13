@@ -33,8 +33,10 @@ public class ItemComponent extends Item {
     @Override
     @SideOnly(Side.CLIENT)
     public void registerIcons(IIconRegister ir) {
-        icons[0] = ir.registerIcon(EnergyControl.MODID + ":" + "advanced_circuit");
-        icons[1] = ir.registerIcon(EnergyControl.MODID + ":" + "basic_circuit");
+        if (!EnergyControl.config.disableCircuitRecipe) {
+            icons[0] = ir.registerIcon(EnergyControl.MODID + ":" + "advanced_circuit");
+            icons[1] = ir.registerIcon(EnergyControl.MODID + ":" + "basic_circuit");
+        }
         icons[2] = ir.registerIcon(EnergyControl.MODID + ":" + "machine_casing");
         icons[3] = ir.registerIcon(EnergyControl.MODID + ":" + "radio_transmitter");
         icons[4] = ir.registerIcon(EnergyControl.MODID + ":" + "strong_string");
@@ -68,8 +70,10 @@ public class ItemComponent extends Item {
     @Override
     @SideOnly(Side.CLIENT)
     public void getSubItems(Item item, CreativeTabs tab, List items) {
-        items.add(new ItemStack(ModItems.itemComponent, 1, ADVANCED_CIRCUIT));
-        items.add(new ItemStack(ModItems.itemComponent, 1, BASIC_CIRCUIT));
+        if (!EnergyControl.config.disableCircuitRecipe) {
+            items.add(new ItemStack(ModItems.itemComponent, 1, ADVANCED_CIRCUIT));
+            items.add(new ItemStack(ModItems.itemComponent, 1, BASIC_CIRCUIT));
+        }
         items.add(new ItemStack(ModItems.itemComponent, 1, MACHINE_CASING));
         items.add(new ItemStack(ModItems.itemComponent, 1, RADIO_TRANSMITTER));
         items.add(new ItemStack(ModItems.itemComponent, 1, STRONG_STRING));

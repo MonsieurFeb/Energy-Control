@@ -123,8 +123,11 @@ public class ModItems {
 
         CrossModLoader.registerItems(); // In 1.10.2 in EnergyControl class
 
-        OreDictionary.registerOre("circuitBasic", new ItemStack(itemComponent, 1, ItemComponent.BASIC_CIRCUIT));
-        OreDictionary.registerOre("circuitAdvanced", new ItemStack(itemComponent, 1, ItemComponent.ADVANCED_CIRCUIT));
+        if (!EnergyControl.config.disableCircuitRecipe) {
+            OreDictionary.registerOre("circuitBasic", new ItemStack(itemComponent, 1, ItemComponent.BASIC_CIRCUIT));
+            OreDictionary
+                .registerOre("circuitAdvanced", new ItemStack(itemComponent, 1, ItemComponent.ADVANCED_CIRCUIT));
+        }
     }
 
     public static Block register(Block block, String name) {
