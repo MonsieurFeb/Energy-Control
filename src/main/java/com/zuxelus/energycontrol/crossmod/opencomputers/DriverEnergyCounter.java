@@ -1,5 +1,8 @@
 package com.zuxelus.energycontrol.crossmod.opencomputers;
 
+import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
+
 import com.zuxelus.energycontrol.tileentities.TileEntityEnergyCounter;
 
 import li.cil.oc.api.driver.NamedBlock;
@@ -9,47 +12,47 @@ import li.cil.oc.api.machine.Context;
 import li.cil.oc.api.network.ManagedEnvironment;
 import li.cil.oc.api.prefab.DriverSidedTileEntity;
 import li.cil.oc.integration.ManagedTileEntityEnvironment;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 
 public class DriverEnergyCounter extends DriverSidedTileEntity {
-	public static final String NAME = "energy_counter";
 
-	@Override
-	public Class<?> getTileEntityClass() {
-		return TileEntityEnergyCounter.class;
-	}
+    public static final String NAME = "energy_counter";
 
-	@Override
-	public ManagedEnvironment createEnvironment(World world, int x, int y, int z, ForgeDirection dir) {
-		return new Environment((TileEntityEnergyCounter) world.getTileEntity(x, y, z));
-	}
+    @Override
+    public Class<?> getTileEntityClass() {
+        return TileEntityEnergyCounter.class;
+    }
 
-	public static final class Environment extends ManagedTileEntityEnvironment<TileEntityEnergyCounter> implements NamedBlock {
+    @Override
+    public ManagedEnvironment createEnvironment(World world, int x, int y, int z, ForgeDirection dir) {
+        return new Environment((TileEntityEnergyCounter) world.getTileEntity(x, y, z));
+    }
 
-		public Environment(final TileEntityEnergyCounter te) {
-			super(te, NAME);
-		}
+    public static final class Environment extends ManagedTileEntityEnvironment<TileEntityEnergyCounter>
+        implements NamedBlock {
 
-		@Override
-		public String preferredName() {
-			return NAME;
-		}
+        public Environment(final TileEntityEnergyCounter te) {
+            super(te, NAME);
+        }
 
-		@Override
-		public int priority() {
-			return 0;
-		}
+        @Override
+        public String preferredName() {
+            return NAME;
+        }
 
-		@Callback(doc = "function():double -- Get counter.")
-		public Object[] getCount(final Context context, final Arguments args) {
-			return new Object[] { tileEntity.counter };
-		}
+        @Override
+        public int priority() {
+            return 0;
+        }
 
-		@Callback(doc = "function():double -- Reset counter.")
-		public Object[] reset(final Context context, final Arguments args) {
-			tileEntity.counter = 0;
-			return null;
-		}
-	}
+        @Callback(doc = "function():double -- Get counter.")
+        public Object[] getCount(final Context context, final Arguments args) {
+            return new Object[] { tileEntity.counter };
+        }
+
+        @Callback(doc = "function():double -- Reset counter.")
+        public Object[] reset(final Context context, final Arguments args) {
+            tileEntity.counter = 0;
+            return null;
+        }
+    }
 }

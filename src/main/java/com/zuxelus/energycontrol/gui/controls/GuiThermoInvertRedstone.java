@@ -1,5 +1,9 @@
 package com.zuxelus.energycontrol.gui.controls;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.util.ResourceLocation;
+
 import org.lwjgl.opengl.GL11;
 
 import com.zuxelus.energycontrol.EnergyControl;
@@ -8,50 +12,49 @@ import com.zuxelus.energycontrol.tileentities.TileEntityThermalMonitor;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.util.ResourceLocation;
 
 @SideOnly(Side.CLIENT)
 public class GuiThermoInvertRedstone extends GuiButton {
-	private static final ResourceLocation TEXTURE = new ResourceLocation(EnergyControl.MODID, "textures/gui/gui_thermal_monitor.png");
 
-	TileEntityThermalMonitor thermo;
-	private boolean checked;
+    private static final ResourceLocation TEXTURE = new ResourceLocation(
+        EnergyControl.MODID,
+        "textures/gui/gui_thermal_monitor.png");
 
-	public GuiThermoInvertRedstone(int id, int x, int y, TileEntityThermalMonitor thermo) {
-		super(id, x, y, 0, 0, "");
-		height = 15;
-		width = 51;
-		this.thermo = thermo;
-		checked = thermo.getInvertRedstone();
-	}
+    TileEntityThermalMonitor thermo;
+    private boolean checked;
 
-	@Override
-	public void drawButton(Minecraft mc, int mouseX, int mouseY) {
-		if (!visible)
-			return;
+    public GuiThermoInvertRedstone(int id, int x, int y, TileEntityThermalMonitor thermo) {
+        super(id, x, y, 0, 0, "");
+        height = 15;
+        width = 51;
+        this.thermo = thermo;
+        checked = thermo.getInvertRedstone();
+    }
 
-		mc.getTextureManager().bindTexture(TEXTURE);
-		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-		int delta = checked ? 15 : 0;
-		drawTexturedModalRect(xPosition, yPosition + 1, 199, delta, 51, 15);
-	}
+    @Override
+    public void drawButton(Minecraft mc, int mouseX, int mouseY) {
+        if (!visible) return;
 
-	@Override
-	public int getHoverState(boolean flag) {
-		return 0;
-	}
+        mc.getTextureManager()
+            .bindTexture(TEXTURE);
+        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+        int delta = checked ? 15 : 0;
+        drawTexturedModalRect(xPosition, yPosition + 1, 199, delta, 51, 15);
+    }
 
-	@Override
-	public boolean mousePressed(Minecraft mc, int mouseX, int mouseY) {
-		if (!super.mousePressed(mc, mouseX, mouseY))
-			return false;
-		checked = !checked;
-		if (thermo.getWorldObj().isRemote && thermo.getInvertRedstone() != checked) {
-			NetworkHelper.updateSeverTileEntity(thermo.xCoord, thermo.yCoord, thermo.zCoord, 2, checked ? 1 : 0);
-			thermo.setInvertRedstone(checked);
-		}
-		return true;
-	}
+    @Override
+    public int getHoverState(boolean flag) {
+        return 0;
+    }
+
+    @Override
+    public boolean mousePressed(Minecraft mc, int mouseX, int mouseY) {
+        if (!super.mousePressed(mc, mouseX, mouseY)) return false;
+        checked = !checked;
+        if (thermo.getWorldObj().isRemote && thermo.getInvertRedstone() != checked) {
+            NetworkHelper.updateSeverTileEntity(thermo.xCoord, thermo.yCoord, thermo.zCoord, 2, checked ? 1 : 0);
+            thermo.setInvertRedstone(checked);
+        }
+        return true;
+    }
 }

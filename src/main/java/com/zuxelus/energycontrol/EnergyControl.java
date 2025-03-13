@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.minecraft.entity.player.EntityPlayer;
+
 import org.apache.logging.log4j.Logger;
 
 import com.zuxelus.energycontrol.config.ConfigHandler;
@@ -26,62 +28,69 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraft.entity.player.EntityPlayer;
 
-@Mod(modid = EnergyControl.MODID, version = EnergyControl.VERSION, dependencies = "after:IC2", guiFactory = "com.zuxelus.energycontrol.config.GuiFactory", acceptedMinecraftVersions = "[1.7.10]")
+@Mod(
+    modid = EnergyControl.MODID,
+    version = EnergyControl.VERSION,
+    dependencies = "after:IC2",
+    guiFactory = "com.zuxelus.energycontrol.config.GuiFactory",
+    acceptedMinecraftVersions = "[1.7.10]")
 public class EnergyControl {
-	public static final String MODID = "energycontrol";
-	public static final String VERSION = "@VERSION@";
 
-	@SidedProxy(clientSide = "com.zuxelus.energycontrol.proxy.ClientProxy", serverSide = "com.zuxelus.energycontrol.proxy.ServerProxy")
-	public static IProxy proxy;
+    public static final String MODID = "energycontrol";
+    public static final String VERSION = "@VERSION@";
 
-	@Instance(MODID)
-	public static EnergyControl instance;
+    @SidedProxy(
+        clientSide = "com.zuxelus.energycontrol.proxy.ClientProxy",
+        serverSide = "com.zuxelus.energycontrol.proxy.ServerProxy")
+    public static IProxy proxy;
 
-	public static EnCtrlTab creativeTab = new EnCtrlTab();
+    @Instance(MODID)
+    public static EnergyControl instance;
 
-	public static Logger logger;
-	public static ConfigHandler config;
+    public static EnCtrlTab creativeTab = new EnCtrlTab();
 
-	public int modelId; // 1.7.10
-	public ScreenManager screenManager = new ScreenManager();
+    public static Logger logger;
+    public static ConfigHandler config;
 
-	@SideOnly(Side.CLIENT)
-	public List<String> availableAlarms; //on client
-	@SideOnly(Side.CLIENT)
-	public List<String> serverAllowedAlarms; // will be loaded from server
-	public static Map<EntityPlayer, Boolean> altPressed = new HashMap<EntityPlayer, Boolean>();	
+    public int modelId; // 1.7.10
+    public ScreenManager screenManager = new ScreenManager();
 
-	@EventHandler
-	public void preInit(FMLPreInitializationEvent event) {
-		logger = event.getModLog();
+    @SideOnly(Side.CLIENT)
+    public List<String> availableAlarms; // on client
+    @SideOnly(Side.CLIENT)
+    public List<String> serverAllowedAlarms; // will be loaded from server
+    public static Map<EntityPlayer, Boolean> altPressed = new HashMap<EntityPlayer, Boolean>();
 
-		proxy.loadConfig(event);
-		proxy.importSound(event.getModConfigurationDirectory());
+    @EventHandler
+    public void preInit(FMLPreInitializationEvent event) {
+        logger = event.getModLog();
 
-		ChannelHandler.init();
-		CrossModLoader.preInit();
-		ModItems.onBlockRegistry();
-		ModItems.onItemRegistry();
-		ModItems.registerTileEntities();
-	}
+        proxy.loadConfig(event);
+        proxy.importSound(event.getModConfigurationDirectory());
 
-	@EventHandler
-	public static void init(FMLInitializationEvent event) {
-		proxy.registerEventHandlers();
+        ChannelHandler.init();
+        CrossModLoader.preInit();
+        ModItems.onBlockRegistry();
+        ModItems.onItemRegistry();
+        ModItems.registerTileEntities();
+    }
 
-		NetworkRegistry.INSTANCE.registerGuiHandler(instance, proxy);
+    @EventHandler
+    public static void init(FMLInitializationEvent event) {
+        proxy.registerEventHandlers();
 
-		proxy.registerSpecialRenderers();
-		CrossModLoader.init();
-	}
+        NetworkRegistry.INSTANCE.registerGuiHandler(instance, proxy);
 
-	@EventHandler
-	public static void postInit(FMLPostInitializationEvent event) {
-		Recipes.addRecipes();
-		if (Loader.isModLoaded("MineTweaker3") || Loader.isModLoaded("MineTweaker3".toLowerCase())) {
-			CraftTweakerIntegration.init();
-		}
-	}
+        proxy.registerSpecialRenderers();
+        CrossModLoader.init();
+    }
+
+    @EventHandler
+    public static void postInit(FMLPostInitializationEvent event) {
+        Recipes.addRecipes();
+        if (Loader.isModLoaded("MineTweaker3") || Loader.isModLoaded("MineTweaker3".toLowerCase())) {
+            CraftTweakerIntegration.init();
+        }
+    }
 }

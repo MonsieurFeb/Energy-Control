@@ -4,58 +4,65 @@ import org.objectweb.asm.MethodVisitor;
 
 public abstract class HookInjectorFactory {
 
-	protected boolean isPriorityInverted = false;
+    protected boolean isPriorityInverted = false;
 
-	abstract HookInjectorMethodVisitor createHookInjector(MethodVisitor mv, int access, String name, String desc, AsmHook hook, HookInjectorClassVisitor cv);
+    abstract HookInjectorMethodVisitor createHookInjector(MethodVisitor mv, int access, String name, String desc,
+        AsmHook hook, HookInjectorClassVisitor cv);
 
-	static class ByAnchor extends HookInjectorFactory {
-		public static final ByAnchor INSTANCE = new ByAnchor();
+    static class ByAnchor extends HookInjectorFactory {
 
-		private ByAnchor() {
-		}
+        public static final ByAnchor INSTANCE = new ByAnchor();
 
-		public HookInjectorMethodVisitor createHookInjector(MethodVisitor mv, int access, String name, String desc, AsmHook hook, HookInjectorClassVisitor cv) {
-			return new HookInjectorMethodVisitor.ByAnchor(mv, access, name, desc, hook, cv);
-		}
-	}
+        private ByAnchor() {}
 
-	static class MethodEnter extends HookInjectorFactory {
-		public static final MethodEnter INSTANCE = new MethodEnter();
+        public HookInjectorMethodVisitor createHookInjector(MethodVisitor mv, int access, String name, String desc,
+            AsmHook hook, HookInjectorClassVisitor cv) {
+            return new HookInjectorMethodVisitor.ByAnchor(mv, access, name, desc, hook, cv);
+        }
+    }
 
-		private MethodEnter() {
-		}
+    static class MethodEnter extends HookInjectorFactory {
 
-		@Override
-		public HookInjectorMethodVisitor createHookInjector(MethodVisitor mv, int access, String name, String desc, AsmHook hook, HookInjectorClassVisitor cv) {
-			return new HookInjectorMethodVisitor.MethodEnter(mv, access, name, desc, hook, cv);
-		}
+        public static final MethodEnter INSTANCE = new MethodEnter();
 
-	}
+        private MethodEnter() {}
 
-	static class MethodExit extends HookInjectorFactory {
-		public static final MethodExit INSTANCE = new MethodExit();
+        @Override
+        public HookInjectorMethodVisitor createHookInjector(MethodVisitor mv, int access, String name, String desc,
+            AsmHook hook, HookInjectorClassVisitor cv) {
+            return new HookInjectorMethodVisitor.MethodEnter(mv, access, name, desc, hook, cv);
+        }
 
-		private MethodExit() {
-			isPriorityInverted = true;
-		}
+    }
 
-		@Override
-		public HookInjectorMethodVisitor createHookInjector(MethodVisitor mv, int access, String name, String desc, AsmHook hook, HookInjectorClassVisitor cv) {
-			return new HookInjectorMethodVisitor.MethodExit(mv, access, name, desc, hook, cv);
-		}
-	}
+    static class MethodExit extends HookInjectorFactory {
 
-	static class LineNumber extends HookInjectorFactory {
-		private int lineNumber;
+        public static final MethodExit INSTANCE = new MethodExit();
 
-		public LineNumber(int lineNumber) {
-			this.lineNumber = lineNumber;
-		}
+        private MethodExit() {
+            isPriorityInverted = true;
+        }
 
-		@Override
-		public HookInjectorMethodVisitor createHookInjector(MethodVisitor mv, int access, String name, String desc, AsmHook hook, HookInjectorClassVisitor cv) {
-			return new HookInjectorMethodVisitor.LineNumber(mv, access, name, desc, hook, cv, lineNumber);
-		}
-	}
+        @Override
+        public HookInjectorMethodVisitor createHookInjector(MethodVisitor mv, int access, String name, String desc,
+            AsmHook hook, HookInjectorClassVisitor cv) {
+            return new HookInjectorMethodVisitor.MethodExit(mv, access, name, desc, hook, cv);
+        }
+    }
+
+    static class LineNumber extends HookInjectorFactory {
+
+        private int lineNumber;
+
+        public LineNumber(int lineNumber) {
+            this.lineNumber = lineNumber;
+        }
+
+        @Override
+        public HookInjectorMethodVisitor createHookInjector(MethodVisitor mv, int access, String name, String desc,
+            AsmHook hook, HookInjectorClassVisitor cv) {
+            return new HookInjectorMethodVisitor.LineNumber(mv, access, name, desc, hook, cv, lineNumber);
+        }
+    }
 
 }

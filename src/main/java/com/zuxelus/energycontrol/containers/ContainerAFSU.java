@@ -1,5 +1,9 @@
 package com.zuxelus.energycontrol.containers;
 
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.ICrafting;
+import net.minecraft.inventory.Slot;
+
 import com.zuxelus.energycontrol.network.NetworkHelper;
 import com.zuxelus.energycontrol.tileentities.TileEntityAFSU;
 import com.zuxelus.zlib.containers.ContainerBase;
@@ -7,31 +11,27 @@ import com.zuxelus.zlib.containers.slots.SlotArmor;
 import com.zuxelus.zlib.containers.slots.SlotChargeable;
 import com.zuxelus.zlib.containers.slots.SlotDischargeable;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.ICrafting;
-import net.minecraft.inventory.Slot;
-
 public class ContainerAFSU extends ContainerBase<TileEntityAFSU> {
-	private double lastEnergy = -1;
 
-	public ContainerAFSU(EntityPlayer player, TileEntityAFSU te) {
-		super(te);
+    private double lastEnergy = -1;
 
-		addSlotToContainer(new SlotChargeable(te, TileEntityAFSU.SLOT_CHARGER, 26, 17));
-		addSlotToContainer(new SlotDischargeable(te, TileEntityAFSU.SLOT_DISCHARGER, 26, 53, TileEntityAFSU.TIER));
-		for (int col = 0; col < 4; col++)
-			addSlotToContainer((Slot) new SlotArmor(player.inventory, col, 8 + col * 18, 84));
-		// inventory
-		addPlayerInventorySlots(player, 196);
-	}
+    public ContainerAFSU(EntityPlayer player, TileEntityAFSU te) {
+        super(te);
 
-	@Override
-	public void detectAndSendChanges() {
-		super.detectAndSendChanges();
-		double energy = te.getEnergy();
-		for (int i = 0; i < crafters.size(); i++)
-			if (lastEnergy != energy)
-				NetworkHelper.updateClientTileEntity((ICrafting)crafters.get(i), te.xCoord, te.yCoord, te.zCoord, 1, energy);
-		lastEnergy = energy;
-	}
+        addSlotToContainer(new SlotChargeable(te, TileEntityAFSU.SLOT_CHARGER, 26, 17));
+        addSlotToContainer(new SlotDischargeable(te, TileEntityAFSU.SLOT_DISCHARGER, 26, 53, TileEntityAFSU.TIER));
+        for (int col = 0; col < 4; col++)
+            addSlotToContainer((Slot) new SlotArmor(player.inventory, col, 8 + col * 18, 84));
+        // inventory
+        addPlayerInventorySlots(player, 196);
+    }
+
+    @Override
+    public void detectAndSendChanges() {
+        super.detectAndSendChanges();
+        double energy = te.getEnergy();
+        for (int i = 0; i < crafters.size(); i++) if (lastEnergy != energy) NetworkHelper
+            .updateClientTileEntity((ICrafting) crafters.get(i), te.xCoord, te.yCoord, te.zCoord, 1, energy);
+        lastEnergy = energy;
+    }
 }

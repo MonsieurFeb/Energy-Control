@@ -1,5 +1,8 @@
 package com.zuxelus.energycontrol.crossmod.opencomputers;
 
+import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
+
 import com.zuxelus.energycontrol.tileentities.TileEntityAverageCounter;
 
 import li.cil.oc.api.driver.NamedBlock;
@@ -9,46 +12,46 @@ import li.cil.oc.api.machine.Context;
 import li.cil.oc.api.network.ManagedEnvironment;
 import li.cil.oc.api.prefab.DriverSidedTileEntity;
 import li.cil.oc.integration.ManagedTileEntityEnvironment;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 
 public class DriverAverageCounter extends DriverSidedTileEntity {
-	public static final String NAME = "average_counter";
 
-	@Override
-	public Class<?> getTileEntityClass() {
-		return TileEntityAverageCounter.class;
-	}
+    public static final String NAME = "average_counter";
 
-	@Override
-	public ManagedEnvironment createEnvironment(World world, int x, int y, int z, ForgeDirection dir) {
-		return new Environment((TileEntityAverageCounter) world.getTileEntity(x, y, z));
-	}
+    @Override
+    public Class<?> getTileEntityClass() {
+        return TileEntityAverageCounter.class;
+    }
 
-	public static final class Environment extends ManagedTileEntityEnvironment<TileEntityAverageCounter> implements NamedBlock {
+    @Override
+    public ManagedEnvironment createEnvironment(World world, int x, int y, int z, ForgeDirection dir) {
+        return new Environment((TileEntityAverageCounter) world.getTileEntity(x, y, z));
+    }
 
-		public Environment(final TileEntityAverageCounter te) {
-			super(te, NAME);
-		}
+    public static final class Environment extends ManagedTileEntityEnvironment<TileEntityAverageCounter>
+        implements NamedBlock {
 
-		@Override
-		public String preferredName() {
-			return NAME;
-		}
+        public Environment(final TileEntityAverageCounter te) {
+            super(te, NAME);
+        }
 
-		@Override
-		public int priority() {
-			return 0;
-		}
+        @Override
+        public String preferredName() {
+            return NAME;
+        }
 
-		@Callback(doc = "function():number -- Get current average period (in seconds).")
-		public Object[] getPeriod(final Context context, final Arguments args) {
-			return new Object[] { ((int) tileEntity.period) };
-		}
+        @Override
+        public int priority() {
+            return 0;
+        }
 
-		@Callback(doc = "function():number -- Get average value.")
-		public Object[] getAverage(final Context context, final Arguments args) {
-			return new Object[] { tileEntity.getClientAverage() };
-		}
-	}
+        @Callback(doc = "function():number -- Get current average period (in seconds).")
+        public Object[] getPeriod(final Context context, final Arguments args) {
+            return new Object[] { ((int) tileEntity.period) };
+        }
+
+        @Callback(doc = "function():number -- Get average value.")
+        public Object[] getAverage(final Context context, final Arguments args) {
+            return new Object[] { tileEntity.getClientAverage() };
+        }
+    }
 }

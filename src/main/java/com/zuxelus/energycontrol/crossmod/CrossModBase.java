@@ -3,70 +3,69 @@ package com.zuxelus.energycontrol.crossmod;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.zuxelus.energycontrol.utils.FluidInfo;
-
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
+import com.zuxelus.energycontrol.utils.FluidInfo;
+
 public class CrossModBase {
 
-	public ItemStack getItemStack(String name) {
-		return null;
-	}
+    public ItemStack getItemStack(String name) {
+        return null;
+    }
 
-	public boolean isWrench(ItemStack stack) {
-		return false;
-	}
+    public boolean isWrench(ItemStack stack) {
+        return false;
+    }
 
-	public boolean isElectricItem(ItemStack stack) {
-		return false;
-	}
+    public boolean isElectricItem(ItemStack stack) {
+        return false;
+    }
 
-	public double dischargeItem(ItemStack stack, double needed) {
-		return 0;
-	}
+    public double dischargeItem(ItemStack stack, double needed) {
+        return 0;
+    }
 
-	public NBTTagCompound getEnergyData(TileEntity te) {
-		return null;
-	}
+    public NBTTagCompound getEnergyData(TileEntity te) {
+        return null;
+    }
 
-	public NBTTagCompound getCardData(TileEntity te) {
-		return null;
-	}
+    public NBTTagCompound getCardData(TileEntity te) {
+        return null;
+    }
 
-	public NBTTagCompound getInventoryData(TileEntity te) {
-		return null;
-	}
+    public NBTTagCompound getInventoryData(TileEntity te) {
+        return null;
+    }
 
-	public int getHeat(World world, int x, int y, int z) {
-		return -1;
-	}
+    public int getHeat(World world, int x, int y, int z) {
+        return -1;
+    }
 
-	public List<FluidInfo> getAllTanks(TileEntity te) {
-		return null;
-	}
+    public List<FluidInfo> getAllTanks(TileEntity te) {
+        return null;
+    }
 
-	public TileEntity findTileEntity(World world, int x, int y, int z) {
-		return null;
-	}
+    public TileEntity findTileEntity(World world, int x, int y, int z) {
+        return null;
+    }
 
-	public ArrayList getHookValues(TileEntity te) {
-		return null;
-	}
+    public ArrayList getHookValues(TileEntity te) {
+        return null;
+    }
 
-	public void registerItems() { }
+    public void registerItems() {}
 
-	public void registerTileEntities() {}
+    public void registerTileEntities() {}
 
-	public void loadRecipes() { }
+    public void loadRecipes() {}
 
-	public ResourceLocation getFluidTexture(String fluidName) {
-		return null;
-	}
+    public ResourceLocation getFluidTexture(String fluidName) {
+        return null;
+    }
 
-	public void removeTileEntity(TileEntity te) {}
+    public void removeTileEntity(TileEntity te) {}
 }

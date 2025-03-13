@@ -1,189 +1,204 @@
 package com.zuxelus.hooklib.asm;
 
-import org.apache.commons.io.IOUtils;
-import org.objectweb.asm.*;
-
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import org.apache.commons.io.IOUtils;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+
 public class ClassMetadataReader {
-	private static Method m;
 
-	static {
-		try {
-			m = ClassLoader.class.getDeclaredMethod("findLoadedClass", String.class);
-			m.setAccessible(true);
-		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
-		}
-	}
+    private static Method m;
 
-	public byte[] getClassData(String className) throws IOException {
-		String classResourceName = '/' + className.replace('.', '/') + ".class";
-		return IOUtils.toByteArray(ClassMetadataReader.class.getResourceAsStream(classResourceName));
-	}
+    static {
+        try {
+            m = ClassLoader.class.getDeclaredMethod("findLoadedClass", String.class);
+            m.setAccessible(true);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+    }
 
-	public void acceptVisitor(byte[] classData, ClassVisitor visitor) {
-		new ClassReader(classData).accept(visitor, 0);
-	}
+    public byte[] getClassData(String className) throws IOException {
+        String classResourceName = '/' + className.replace('.', '/') + ".class";
+        return IOUtils.toByteArray(ClassMetadataReader.class.getResourceAsStream(classResourceName));
+    }
 
-	public void acceptVisitor(String className, ClassVisitor visitor) throws IOException {
-		acceptVisitor(getClassData(className), visitor);
-	}
+    public void acceptVisitor(byte[] classData, ClassVisitor visitor) {
+        new ClassReader(classData).accept(visitor, 0);
+    }
 
-	public MethodReference findVirtualMethod(String owner, String name, String desc) {
-		ArrayList<String> superClasses = getSuperClasses(owner);
-		for (int i = superClasses.size() - 1; i > 0; i--) {
-			String className = superClasses.get(i);
-			MethodReference methodReference = getMethodReference(className, name, desc);
-			if (methodReference != null) {
-				System.out.println("found virtual method: " + methodReference);
-				return methodReference;
-			}
-		}
-		return null;
-	}
+    public void acceptVisitor(String className, ClassVisitor visitor) throws IOException {
+        acceptVisitor(getClassData(className), visitor);
+    }
 
-	private MethodReference getMethodReference(String type, String methodName, String desc) {
-		try {
-			return getMethodReferenceASM(type, methodName, desc);
-		} catch (Exception e) {
-			return getMethodReferenceReflect(type, methodName, desc);
-		}
-	}
+    public MethodReference findVirtualMethod(String owner, String name, String desc) {
+        ArrayList<String> superClasses = getSuperClasses(owner);
+        for (int i = superClasses.size() - 1; i > 0; i--) {
+            String className = superClasses.get(i);
+            MethodReference methodReference = getMethodReference(className, name, desc);
+            if (methodReference != null) {
+                System.out.println("found virtual method: " + methodReference);
+                return methodReference;
+            }
+        }
+        return null;
+    }
 
-	protected MethodReference getMethodReferenceASM(String type, String methodName, String desc) throws IOException {
-		FindMethodClassVisitor cv = new FindMethodClassVisitor(methodName, desc);
-		acceptVisitor(type, cv);
-		if (cv.found) {
-			return new MethodReference(type, cv.targetName, cv.targetDesc);
-		}
-		return null;
-	}
+    private MethodReference getMethodReference(String type, String methodName, String desc) {
+        try {
+            return getMethodReferenceASM(type, methodName, desc);
+        } catch (Exception e) {
+            return getMethodReferenceReflect(type, methodName, desc);
+        }
+    }
 
-	protected MethodReference getMethodReferenceReflect(String type, String methodName, String desc) {
-		Class loadedClass = getLoadedClass(type);
-		if (loadedClass != null) {
-			for (Method m : loadedClass.getDeclaredMethods()) {
-				if (checkSameMethod(methodName, desc, m.getName(), Type.getMethodDescriptor(m))) {
-					return new MethodReference(type, m.getName(), Type.getMethodDescriptor(m));
-				}
-			}
-		}
-		return null;
-	}
+    protected MethodReference getMethodReferenceASM(String type, String methodName, String desc) throws IOException {
+        FindMethodClassVisitor cv = new FindMethodClassVisitor(methodName, desc);
+        acceptVisitor(type, cv);
+        if (cv.found) {
+            return new MethodReference(type, cv.targetName, cv.targetDesc);
+        }
+        return null;
+    }
 
-	protected boolean checkSameMethod(String sourceName, String sourceDesc, String targetName, String targetDesc) {
-		return sourceName.equals(targetName) && sourceDesc.equals(targetDesc);
-	}
+    protected MethodReference getMethodReferenceReflect(String type, String methodName, String desc) {
+        Class loadedClass = getLoadedClass(type);
+        if (loadedClass != null) {
+            for (Method m : loadedClass.getDeclaredMethods()) {
+                if (checkSameMethod(methodName, desc, m.getName(), Type.getMethodDescriptor(m))) {
+                    return new MethodReference(type, m.getName(), Type.getMethodDescriptor(m));
+                }
+            }
+        }
+        return null;
+    }
 
-	public ArrayList<String> getSuperClasses(String type) {
-		ArrayList<String> superclasses = new ArrayList<String>(1);
-		superclasses.add(type);
-		while ((type = getSuperClass(type)) != null) {
-			superclasses.add(type);
-		}
-		Collections.reverse(superclasses);
-		return superclasses;
-	}
+    protected boolean checkSameMethod(String sourceName, String sourceDesc, String targetName, String targetDesc) {
+        return sourceName.equals(targetName) && sourceDesc.equals(targetDesc);
+    }
 
-	private Class getLoadedClass(String type) {
-		if (m != null) {
-			try {
-				ClassLoader classLoader = ClassMetadataReader.class.getClassLoader();
-				return (Class) m.invoke(classLoader, type.replace('/', '.'));
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		return null;
-	}
+    public ArrayList<String> getSuperClasses(String type) {
+        ArrayList<String> superclasses = new ArrayList<String>(1);
+        superclasses.add(type);
+        while ((type = getSuperClass(type)) != null) {
+            superclasses.add(type);
+        }
+        Collections.reverse(superclasses);
+        return superclasses;
+    }
 
-	public String getSuperClass(String type) {
-		try {
-			return getSuperClassASM(type);
-		} catch (Exception e) {
-			return getSuperClassReflect(type);
-		}
-	}
+    private Class getLoadedClass(String type) {
+        if (m != null) {
+            try {
+                ClassLoader classLoader = ClassMetadataReader.class.getClassLoader();
+                return (Class) m.invoke(classLoader, type.replace('/', '.'));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
 
-	protected String getSuperClassASM(String type) throws IOException {
-		CheckSuperClassVisitor cv = new CheckSuperClassVisitor();
-		acceptVisitor(type, cv);
-		return cv.superClassName;
-	}
+    public String getSuperClass(String type) {
+        try {
+            return getSuperClassASM(type);
+        } catch (Exception e) {
+            return getSuperClassReflect(type);
+        }
+    }
 
-	protected String getSuperClassReflect(String type) {
-		Class loadedClass = getLoadedClass(type);
-		if (loadedClass != null) {
-			if (loadedClass.getSuperclass() == null)
-				return null;
-			return loadedClass.getSuperclass().getName().replace('.', '/');
-		}
-		return "java/lang/Object";
-	}
+    protected String getSuperClassASM(String type) throws IOException {
+        CheckSuperClassVisitor cv = new CheckSuperClassVisitor();
+        acceptVisitor(type, cv);
+        return cv.superClassName;
+    }
 
-	private class CheckSuperClassVisitor extends ClassVisitor {
+    protected String getSuperClassReflect(String type) {
+        Class loadedClass = getLoadedClass(type);
+        if (loadedClass != null) {
+            if (loadedClass.getSuperclass() == null) return null;
+            return loadedClass.getSuperclass()
+                .getName()
+                .replace('.', '/');
+        }
+        return "java/lang/Object";
+    }
 
-		String superClassName;
+    private class CheckSuperClassVisitor extends ClassVisitor {
 
-		public CheckSuperClassVisitor() {
-			super(Opcodes.ASM5);
-		}
+        String superClassName;
 
-		@Override
-		public void visit(int version, int access, String name, String signature, String superName,
-				String[] interfaces) {
-			this.superClassName = superName;
-		}
-	}
+        public CheckSuperClassVisitor() {
+            super(Opcodes.ASM5);
+        }
 
-	protected class FindMethodClassVisitor extends ClassVisitor {
+        @Override
+        public void visit(int version, int access, String name, String signature, String superName,
+            String[] interfaces) {
+            this.superClassName = superName;
+        }
+    }
 
-		public String targetName;
-		public String targetDesc;
-		public boolean found;
+    protected class FindMethodClassVisitor extends ClassVisitor {
 
-		public FindMethodClassVisitor(String name, String desc) {
-			super(Opcodes.ASM5);
-			this.targetName = name;
-			this.targetDesc = desc;
-		}
+        public String targetName;
+        public String targetDesc;
+        public boolean found;
 
-		@Override
-		public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-			System.out.println("visiting " + name + "#" + desc);
-			if ((access & Opcodes.ACC_PRIVATE) == 0 && checkSameMethod(name, desc, targetName, targetDesc)) {
-				found = true;
-				targetName = name;
-				targetDesc = desc;
-			}
-			return null;
-		}
-	}
+        public FindMethodClassVisitor(String name, String desc) {
+            super(Opcodes.ASM5);
+            this.targetName = name;
+            this.targetDesc = desc;
+        }
 
-	public static class MethodReference {
+        @Override
+        public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
+            System.out.println("visiting " + name + "#" + desc);
+            if ((access & Opcodes.ACC_PRIVATE) == 0 && checkSameMethod(name, desc, targetName, targetDesc)) {
+                found = true;
+                targetName = name;
+                targetDesc = desc;
+            }
+            return null;
+        }
+    }
 
-		public final String owner;
-		public final String name;
-		public final String desc;
+    public static class MethodReference {
 
-		public MethodReference(String owner, String name, String desc) {
-			this.owner = owner;
-			this.name = name;
-			this.desc = desc;
-		}
+        public final String owner;
+        public final String name;
+        public final String desc;
 
-		public Type getType() {
-			return Type.getMethodType(desc);
-		}
+        public MethodReference(String owner, String name, String desc) {
+            this.owner = owner;
+            this.name = name;
+            this.desc = desc;
+        }
 
-		@Override
-		public String toString() {
-			return "MethodReference{" + "owner='" + owner + '\'' + ", name='" + name + '\'' + ", desc='" + desc + '\'' + '}';
-		}
-	}
+        public Type getType() {
+            return Type.getMethodType(desc);
+        }
+
+        @Override
+        public String toString() {
+            return "MethodReference{" + "owner='"
+                + owner
+                + '\''
+                + ", name='"
+                + name
+                + '\''
+                + ", desc='"
+                + desc
+                + '\''
+                + '}';
+        }
+    }
 
 }

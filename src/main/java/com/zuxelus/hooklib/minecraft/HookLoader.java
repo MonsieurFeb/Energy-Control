@@ -11,66 +11,68 @@ import cpw.mods.fml.common.asm.transformers.DeobfuscationTransformer;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
 
 public abstract class HookLoader implements IFMLLoadingPlugin {
-	private static Optional<DeobfuscationTransformer> deobfuscationTransformer = Optional.empty();
 
-	static Optional<DeobfuscationTransformer> deobfuscationTransformer() {
-		if (HookLibPlugin.getObfuscated() && !deobfuscationTransformer.isPresent()) {
-			deobfuscationTransformer = Optional.of(new DeobfuscationTransformer());
-		}
-		return deobfuscationTransformer;
-	}
+    private static Optional<DeobfuscationTransformer> deobfuscationTransformer = Optional.empty();
 
-	private static ClassMetadataReader deobfuscationMetadataReader;
+    static Optional<DeobfuscationTransformer> deobfuscationTransformer() {
+        if (HookLibPlugin.getObfuscated() && !deobfuscationTransformer.isPresent()) {
+            deobfuscationTransformer = Optional.of(new DeobfuscationTransformer());
+        }
+        return deobfuscationTransformer;
+    }
 
-	static {
-		deobfuscationMetadataReader = new DeobfuscationMetadataReader();
-	}
+    private static ClassMetadataReader deobfuscationMetadataReader;
 
-	public static HookClassTransformer getTransformer() {
-		return PrimaryClassTransformer.instance.registeredSecondTransformer ? MinecraftClassTransformer.instance : PrimaryClassTransformer.instance;
-	}
+    static {
+        deobfuscationMetadataReader = new DeobfuscationMetadataReader();
+    }
 
-	public static void registerHook(AsmHook hook) {
-		getTransformer().registerHook(hook);
-	}
+    public static HookClassTransformer getTransformer() {
+        return PrimaryClassTransformer.instance.registeredSecondTransformer ? MinecraftClassTransformer.instance
+            : PrimaryClassTransformer.instance;
+    }
 
-	public static void registerHookContainer(String className) {
-		getTransformer().registerHookContainer(className);
-	}
+    public static void registerHook(AsmHook hook) {
+        getTransformer().registerHook(hook);
+    }
 
-	public static ClassMetadataReader getDeobfuscationMetadataReader() {
-		return deobfuscationMetadataReader;
-	}
+    public static void registerHookContainer(String className) {
+        getTransformer().registerHookContainer(className);
+    }
 
-	// 1.6.x only
-	public String[] getLibraryRequestClass() {
-		return null;
-	}
+    public static ClassMetadataReader getDeobfuscationMetadataReader() {
+        return deobfuscationMetadataReader;
+    }
 
-	// 1.7.x only
-	public String getAccessTransformerClass() {
-		return null;
-	}
+    // 1.6.x only
+    public String[] getLibraryRequestClass() {
+        return null;
+    }
 
-	@Override
-	public String[] getASMTransformerClass() {
-		return null;
-	}
+    // 1.7.x only
+    public String getAccessTransformerClass() {
+        return null;
+    }
 
-	@Override
-	public String getModContainerClass() {
-		return null;
-	}
+    @Override
+    public String[] getASMTransformerClass() {
+        return null;
+    }
 
-	@Override
-	public String getSetupClass() {
-		return null;
-	}
+    @Override
+    public String getModContainerClass() {
+        return null;
+    }
 
-	@Override
-	public void injectData(Map<String, Object> data) {
-		registerHooks();
-	}
+    @Override
+    public String getSetupClass() {
+        return null;
+    }
 
-	protected abstract void registerHooks();
+    @Override
+    public void injectData(Map<String, Object> data) {
+        registerHooks();
+    }
+
+    protected abstract void registerHooks();
 }

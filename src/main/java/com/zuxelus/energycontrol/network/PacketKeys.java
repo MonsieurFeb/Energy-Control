@@ -8,27 +8,28 @@ import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import io.netty.buffer.ByteBuf;
 
 public class PacketKeys implements IMessage, IMessageHandler<PacketKeys, IMessage> {
-	private boolean altPressed;
 
-	public PacketKeys() { }
+    private boolean altPressed;
 
-	public PacketKeys(boolean altPressed) {
-		this.altPressed = altPressed;
-	}
+    public PacketKeys() {}
 
-	@Override
-	public void fromBytes(ByteBuf buf) {
-		altPressed = buf.readBoolean();
-	}
+    public PacketKeys(boolean altPressed) {
+        this.altPressed = altPressed;
+    }
 
-	@Override
-	public void toBytes(ByteBuf buf) {
-		buf.writeBoolean(altPressed);
-	}
+    @Override
+    public void fromBytes(ByteBuf buf) {
+        altPressed = buf.readBoolean();
+    }
 
-	@Override
-	public IMessage onMessage(PacketKeys message, MessageContext ctx) {
-		EnergyControl.altPressed.put(ctx.getServerHandler().playerEntity, message.altPressed);
-		return null;
-	}
+    @Override
+    public void toBytes(ByteBuf buf) {
+        buf.writeBoolean(altPressed);
+    }
+
+    @Override
+    public IMessage onMessage(PacketKeys message, MessageContext ctx) {
+        EnergyControl.altPressed.put(ctx.getServerHandler().playerEntity, message.altPressed);
+        return null;
+    }
 }

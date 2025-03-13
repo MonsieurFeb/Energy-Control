@@ -2,6 +2,12 @@ package com.zuxelus.energycontrol.gui;
 
 import java.util.List;
 
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.inventory.Slot;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.ResourceLocation;
+
 import com.google.common.collect.Lists;
 import com.zuxelus.energycontrol.EnergyControl;
 import com.zuxelus.energycontrol.api.PanelString;
@@ -13,76 +19,76 @@ import com.zuxelus.zlib.gui.GuiContainerBase;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.inventory.Slot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.ResourceLocation;
 
 @SideOnly(Side.CLIENT)
 public class GuiKitAssembler extends GuiContainerBase {
-	private static final ResourceLocation TEXTURE = new ResourceLocation(EnergyControl.MODID, "textures/gui/gui_kit_assembler.png");
 
-	private ContainerKitAssembler container;
+    private static final ResourceLocation TEXTURE = new ResourceLocation(
+        EnergyControl.MODID,
+        "textures/gui/gui_kit_assembler.png");
 
-	public GuiKitAssembler(ContainerKitAssembler container) {
-		super(container, "tile.kit_assembler.name", TEXTURE);
-		this.container = container;
-	}
+    private ContainerKitAssembler container;
 
-	@Override
-	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (func_146978_c(165, 16, 4, 52, mouseX, mouseY))
-			drawCreativeTabHoveringText(String.format("%d EU/%d EU", (int) container.te.getEnergy(), TileEntityKitAssembler.CAPACITY), mouseX, mouseY);
-	}
+    public GuiKitAssembler(ContainerKitAssembler container) {
+        super(container, "tile.kit_assembler.name", TEXTURE);
+        this.container = container;
+    }
 
-	@Override
-	protected void renderToolTip(ItemStack stack, int mouseX, int mouseY) {
-		Slot slot = container.getSlot(TileEntityKitAssembler.SLOT_INFO);
-		if (func_146978_c(slot.xDisplayPosition, slot.yDisplayPosition, 16, 16, mouseX, mouseY) && slot.func_111238_b())
-			renderInfoToolTip(slot, mouseX, mouseY);
-		else
-			super.renderToolTip(stack, mouseX, mouseY);
-	}
+    @Override
+    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+        super.drawScreen(mouseX, mouseY, partialTicks);
+        if (func_146978_c(165, 16, 4, 52, mouseX, mouseY)) drawCreativeTabHoveringText(
+            String.format("%d EU/%d EU", (int) container.te.getEnergy(), TileEntityKitAssembler.CAPACITY),
+            mouseX,
+            mouseY);
+    }
 
-	public boolean isInfoSlot(int mouseX, int mouseY) { // 1.7.10
-		Slot slot = container.getSlot(TileEntityKitAssembler.SLOT_INFO);
-		return func_146978_c(slot.xDisplayPosition, slot.yDisplayPosition, 16, 16, mouseX, mouseY);
-	}
+    @Override
+    protected void renderToolTip(ItemStack stack, int mouseX, int mouseY) {
+        Slot slot = container.getSlot(TileEntityKitAssembler.SLOT_INFO);
+        if (func_146978_c(slot.xDisplayPosition, slot.yDisplayPosition, 16, 16, mouseX, mouseY) && slot.func_111238_b())
+            renderInfoToolTip(slot, mouseX, mouseY);
+        else super.renderToolTip(stack, mouseX, mouseY);
+    }
 
-	private void renderInfoToolTip(Slot slot, int x, int y) {
-		ItemStack stack = slot.getStack();
-		if (!ItemCardMain.isCard(stack))
-			return;
-		FontRenderer font = stack.getItem().getFontRenderer(stack);
-		List<String> stackList = stack.getTooltip(mc.thePlayer, mc.gameSettings.advancedItemTooltips);
-		List<String> list = Lists.newArrayList();
-		if (stackList.size() > 0)
-			list.add((String) stackList.get(0));
-		List<PanelString> data = new ItemCardReader(stack).getAllData();
-		if (data != null)
-			for (PanelString panelString : data) {
-				if (panelString.textLeft != null)
-					list.add(EnumChatFormatting.GRAY + panelString.textLeft);
-			}
-		drawHoveringText(list, x, y, (font == null ? fontRendererObj : font));
-	}
+    public boolean isInfoSlot(int mouseX, int mouseY) { // 1.7.10
+        Slot slot = container.getSlot(TileEntityKitAssembler.SLOT_INFO);
+        return func_146978_c(slot.xDisplayPosition, slot.yDisplayPosition, 16, 16, mouseX, mouseY);
+    }
 
-	@Override
-	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
-		super.drawGuiContainerBackgroundLayer(partialTicks, mouseX, mouseY);
+    private void renderInfoToolTip(Slot slot, int x, int y) {
+        ItemStack stack = slot.getStack();
+        if (!ItemCardMain.isCard(stack)) return;
+        FontRenderer font = stack.getItem()
+            .getFontRenderer(stack);
+        List<String> stackList = stack.getTooltip(mc.thePlayer, mc.gameSettings.advancedItemTooltips);
+        List<String> list = Lists.newArrayList();
+        if (stackList.size() > 0) list.add((String) stackList.get(0));
+        List<PanelString> data = new ItemCardReader(stack).getAllData();
+        if (data != null) for (PanelString panelString : data) {
+            if (panelString.textLeft != null) list.add(EnumChatFormatting.GRAY + panelString.textLeft);
+        }
+        drawHoveringText(list, x, y, (font == null ? fontRendererObj : font));
+    }
 
-		int energyHeight = container.te.getEnergyFactor();
-		if (energyHeight > 0)
-			drawTexturedModalRect(guiLeft + 165, guiTop + 16 + (52 - energyHeight), 176, 17 + 52 - energyHeight, 4, energyHeight);
-		int productionWidth = container.te.getProductionFactor();
-		if (productionWidth > 0)
-			drawTexturedModalRect(guiLeft + 86, guiTop + 35, 176, 0, productionWidth, 17);
-	}
+    @Override
+    protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
+        super.drawGuiContainerBackgroundLayer(partialTicks, mouseX, mouseY);
 
-	@Override
-	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
-		drawCenteredText(name, xSize, 6);
-	}
+        int energyHeight = container.te.getEnergyFactor();
+        if (energyHeight > 0) drawTexturedModalRect(
+            guiLeft + 165,
+            guiTop + 16 + (52 - energyHeight),
+            176,
+            17 + 52 - energyHeight,
+            4,
+            energyHeight);
+        int productionWidth = container.te.getProductionFactor();
+        if (productionWidth > 0) drawTexturedModalRect(guiLeft + 86, guiTop + 35, 176, 0, productionWidth, 17);
+    }
+
+    @Override
+    protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
+        drawCenteredText(name, xSize, 6);
+    }
 }

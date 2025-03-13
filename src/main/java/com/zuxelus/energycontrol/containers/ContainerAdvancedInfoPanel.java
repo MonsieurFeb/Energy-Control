@@ -1,54 +1,54 @@
 package com.zuxelus.energycontrol.containers;
 
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+
 import com.zuxelus.energycontrol.containers.slots.SlotCard;
 import com.zuxelus.energycontrol.containers.slots.SlotRange;
 import com.zuxelus.energycontrol.tileentities.TileEntityAdvancedInfoPanel;
 import com.zuxelus.zlib.containers.ContainerBase;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-
 public class ContainerAdvancedInfoPanel extends ContainerBase<TileEntityAdvancedInfoPanel> {
-	private EntityPlayer player;
 
-	public ContainerAdvancedInfoPanel(EntityPlayer player, TileEntityAdvancedInfoPanel te) {
-		super(te);
-		this.player = player;
+    private EntityPlayer player;
 
-		// cards
-		addSlotToContainer(new SlotCard(te, 0, 8, 24 + 18) {
-			@Override
-			public void onSlotChanged() {
-				if (te.getWorldObj().isRemote)
-					ContainerAdvancedInfoPanel.this.onCraftMatrixChanged(te);
-			}
-		});
-		addSlotToContainer(new SlotCard(te, 1, 8 + 18, 24 + 18) {
-			@Override
-			public void onSlotChanged() {
-				if (te.getWorldObj().isRemote)
-					ContainerAdvancedInfoPanel.this.onCraftMatrixChanged(te);
-			}
-		});
-		addSlotToContainer(new SlotCard(te, 2, 8 + 36, 24 + 18) {
-			@Override
-			public void onSlotChanged() {
-				if (te.getWorldObj().isRemote)
-					ContainerAdvancedInfoPanel.this.onCraftMatrixChanged(te);
-			}
-		});
-		addSlotToContainer(new SlotRange(te, 3, 8 + 54, 24 + 18));
-		// inventory
-		addPlayerInventorySlots(player, 223);
-	}
+    public ContainerAdvancedInfoPanel(EntityPlayer player, TileEntityAdvancedInfoPanel te) {
+        super(te);
+        this.player = player;
 
-	@Override
-	public void detectAndSendChanges() {
-		if (player instanceof EntityPlayerMP && ((EntityPlayerMP) player).isChangingQuantityOnly) {
-			((EntityPlayerMP) player).isChangingQuantityOnly = false;
-			super.detectAndSendChanges();
-			((EntityPlayerMP) player).isChangingQuantityOnly = true;
-		} else
-			super.detectAndSendChanges();
-	}
+        // cards
+        addSlotToContainer(new SlotCard(te, 0, 8, 24 + 18) {
+
+            @Override
+            public void onSlotChanged() {
+                if (te.getWorldObj().isRemote) ContainerAdvancedInfoPanel.this.onCraftMatrixChanged(te);
+            }
+        });
+        addSlotToContainer(new SlotCard(te, 1, 8 + 18, 24 + 18) {
+
+            @Override
+            public void onSlotChanged() {
+                if (te.getWorldObj().isRemote) ContainerAdvancedInfoPanel.this.onCraftMatrixChanged(te);
+            }
+        });
+        addSlotToContainer(new SlotCard(te, 2, 8 + 36, 24 + 18) {
+
+            @Override
+            public void onSlotChanged() {
+                if (te.getWorldObj().isRemote) ContainerAdvancedInfoPanel.this.onCraftMatrixChanged(te);
+            }
+        });
+        addSlotToContainer(new SlotRange(te, 3, 8 + 54, 24 + 18));
+        // inventory
+        addPlayerInventorySlots(player, 223);
+    }
+
+    @Override
+    public void detectAndSendChanges() {
+        if (player instanceof EntityPlayerMP && ((EntityPlayerMP) player).isChangingQuantityOnly) {
+            ((EntityPlayerMP) player).isChangingQuantityOnly = false;
+            super.detectAndSendChanges();
+            ((EntityPlayerMP) player).isChangingQuantityOnly = true;
+        } else super.detectAndSendChanges();
+    }
 }

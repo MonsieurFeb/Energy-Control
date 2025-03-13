@@ -7,55 +7,55 @@ import net.minecraft.util.StatCollector;
 
 public class PanelString {
 
-	public PanelString() {}
-	
-	public PanelString(String text) {
-		textLeft = text;
-	}
+    public PanelString() {}
 
-	public PanelString(String resourceName, double value, boolean showLabels) {
-		this(resourceName, getFormatter().format(value), showLabels);
-	}
+    public PanelString(String text) {
+        textLeft = text;
+    }
 
-	public PanelString(String resourceName, String value, boolean showLabels) {
-		textLeft = getFormatted(resourceName, value, showLabels);
-	}
+    public PanelString(String resourceName, double value, boolean showLabels) {
+        this(resourceName, getFormatter().format(value), showLabels);
+    }
 
-	public PanelString(String resourceName, double value, String eu, boolean showLabels) {
-		this(resourceName, String.format("%s %s", getFormatter().format(value), eu), showLabels);
-	}
+    public PanelString(String resourceName, String value, boolean showLabels) {
+        textLeft = getFormatted(resourceName, value, showLabels);
+    }
 
-	public static PanelString create(String resourceName, int value, String name) {
-		return new PanelString(StatCollector.translateToLocalFormatted(resourceName, value, name));
-	}
+    public PanelString(String resourceName, double value, String eu, boolean showLabels) {
+        this(resourceName, String.format("%s %s", getFormatter().format(value), eu), showLabels);
+    }
 
-	private static DecimalFormat formatter;
-	public static DecimalFormat getFormatter() {
-		if (formatter == null) {
-			DecimalFormat lFormatter = new DecimalFormat("#,###.###");
-			DecimalFormatSymbols smb = new DecimalFormatSymbols();
-			smb.setGroupingSeparator(' ');
-			lFormatter.setDecimalFormatSymbols(smb);
-			formatter = lFormatter;
-		}
-		return formatter;
-	}
+    public static PanelString create(String resourceName, int value, String name) {
+        return new PanelString(StatCollector.translateToLocalFormatted(resourceName, value, name));
+    }
 
-	public String textLeft;
+    private static DecimalFormat formatter;
 
-	public String textCenter;
+    public static DecimalFormat getFormatter() {
+        if (formatter == null) {
+            DecimalFormat lFormatter = new DecimalFormat("#,###.###");
+            DecimalFormatSymbols smb = new DecimalFormatSymbols();
+            smb.setGroupingSeparator(' ');
+            lFormatter.setDecimalFormatSymbols(smb);
+            formatter = lFormatter;
+        }
+        return formatter;
+    }
 
-	public String textRight;
+    public String textLeft;
 
-	public int colorLeft;
+    public String textCenter;
 
-	public int colorCenter;
+    public String textRight;
 
-	public int colorRight;
+    public int colorLeft;
 
-	private static String getFormatted(String resourceName, String value, boolean showLabels) {
-		if (showLabels)
-			return StatCollector.translateToLocalFormatted(resourceName, value);
-		return value;
-	}
+    public int colorCenter;
+
+    public int colorRight;
+
+    private static String getFormatted(String resourceName, String value, boolean showLabels) {
+        if (showLabels) return StatCollector.translateToLocalFormatted(resourceName, value);
+        return value;
+    }
 }

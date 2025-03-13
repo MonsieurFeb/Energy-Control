@@ -1,40 +1,53 @@
 package com.zuxelus.energycontrol.utils;
 
-import cpw.mods.fml.client.FMLClientHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.event.sound.SoundEvent;
+
+import cpw.mods.fml.client.FMLClientHandler;
 
 public class TileEntitySound {
-	private PositionedSoundRecord sound;
 
-	public TileEntitySound() { }
+    private PositionedSoundRecord sound;
 
-	public void playAlarm(double x, double y, double z, String name, float range) {
-		Entity person = FMLClientHandler.instance().getClient().renderViewEntity;
-		if (person != null) {
-			double volume = 1.0F - Math.sqrt(person.getDistanceSq(x, y, z) / range / range);
-			if (volume > 0) {
-				if (volume < 0.3)
-					volume = 0.3;
-				sound = new PositionedSoundRecord(new ResourceLocation(name), (float) volume, 1.0F, (float) person.posX, (float) person.posY, (float) person.posZ);
-				Minecraft.getMinecraft().getSoundHandler().playSound(sound);
-				return;
-			}
-		}
-		sound = null;
-	}
+    public TileEntitySound() {}
 
-	public void stopAlarm() {
-		if (sound != null) {
-			Minecraft.getMinecraft().getSoundHandler().stopSound(sound);
-			sound = null;
-		}
-	}
+    public void playAlarm(double x, double y, double z, String name, float range) {
+        Entity person = FMLClientHandler.instance()
+            .getClient().renderViewEntity;
+        if (person != null) {
+            double volume = 1.0F - Math.sqrt(person.getDistanceSq(x, y, z) / range / range);
+            if (volume > 0) {
+                if (volume < 0.3) volume = 0.3;
+                sound = new PositionedSoundRecord(
+                    new ResourceLocation(name),
+                    (float) volume,
+                    1.0F,
+                    (float) person.posX,
+                    (float) person.posY,
+                    (float) person.posZ);
+                Minecraft.getMinecraft()
+                    .getSoundHandler()
+                    .playSound(sound);
+                return;
+            }
+        }
+        sound = null;
+    }
 
-	public boolean isPlaying() {
-		return sound != null && Minecraft.getMinecraft().getSoundHandler().isSoundPlaying(sound);
-	}
+    public void stopAlarm() {
+        if (sound != null) {
+            Minecraft.getMinecraft()
+                .getSoundHandler()
+                .stopSound(sound);
+            sound = null;
+        }
+    }
+
+    public boolean isPlaying() {
+        return sound != null && Minecraft.getMinecraft()
+            .getSoundHandler()
+            .isSoundPlaying(sound);
+    }
 }

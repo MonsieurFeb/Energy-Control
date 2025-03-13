@@ -1,5 +1,10 @@
 package com.zuxelus.energycontrol.tileentities;
 
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.common.util.ForgeDirection;
+
 import com.zuxelus.energycontrol.crossmod.IC2ReactorHelper;
 import com.zuxelus.energycontrol.crossmod.ModIDs;
 import com.zuxelus.zlib.containers.slots.ISlotItemFilter;
@@ -12,149 +17,143 @@ import ic2.api.energy.tile.IEnergySink;
 import ic2.api.energy.tile.IEnergySource;
 import ic2.api.item.ElectricItem;
 import ic2.api.item.IElectricItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraftforge.common.util.ForgeDirection;
 
-@Optional.InterfaceList({
-	@Optional.Interface(modid = ModIDs.IC2, iface = "ic2.api.energy.tile.IEnergySink"),
-	@Optional.Interface(modid = ModIDs.IC2, iface = "ic2.api.energy.tile.IEnergySource")
-})
-public abstract class TileEntityEnergyStorage extends TileEntityInventory implements IEnergySink, IEnergySource, ISlotItemFilter, ITilePacketHandler {
-	protected boolean addedToEnet;
-	protected boolean allowEmit;
-	protected int tier;
-	protected int output;
-	protected double energy;
-	protected double capacity;
+@Optional.InterfaceList({ @Optional.Interface(modid = ModIDs.IC2, iface = "ic2.api.energy.tile.IEnergySink"),
+    @Optional.Interface(modid = ModIDs.IC2, iface = "ic2.api.energy.tile.IEnergySource") })
+public abstract class TileEntityEnergyStorage extends TileEntityInventory
+    implements IEnergySink, IEnergySource, ISlotItemFilter, ITilePacketHandler {
 
-	public TileEntityEnergyStorage(String name, int tier, int output, int capacity) {
-		super(name);
-		addedToEnet = false;
-		allowEmit = true;
-		energy = 0;
-		this.tier = tier;
-		this.output = output;
-		this.capacity = capacity;
-	}
+    protected boolean addedToEnet;
+    protected boolean allowEmit;
+    protected int tier;
+    protected int output;
+    protected double energy;
+    protected double capacity;
 
-	public double getEnergy() {
-		return energy;
-	}
+    public TileEntityEnergyStorage(String name, int tier, int output, int capacity) {
+        super(name);
+        addedToEnet = false;
+        allowEmit = true;
+        energy = 0;
+        this.tier = tier;
+        this.output = output;
+        this.capacity = capacity;
+    }
 
-	public int getOutput() {
-		return output;
-	}
+    public double getEnergy() {
+        return energy;
+    }
 
-	@Override
-	public void setFacing(int meta) {
-		onChunkUnload();
-		super.setFacing(meta);
-		onLoad();
-	}
+    public int getOutput() {
+        return output;
+    }
 
-	public void setEnergy(double value) {
-		energy = Math.min(value, capacity);
-	}
+    @Override
+    public void setFacing(int meta) {
+        onChunkUnload();
+        super.setFacing(meta);
+        onLoad();
+    }
 
-	@Override
-	protected void readProperties(NBTTagCompound tag) {
-		super.readProperties(tag);
-		energy = tag.getDouble("energy");
-	}
+    public void setEnergy(double value) {
+        energy = Math.min(value, capacity);
+    }
 
-	@Override
-	protected NBTTagCompound writeProperties(NBTTagCompound tag) {
-		tag = super.writeProperties(tag);
-		tag.setDouble("energy", energy);
-		return tag;
-	}
+    @Override
+    protected void readProperties(NBTTagCompound tag) {
+        super.readProperties(tag);
+        energy = tag.getDouble("energy");
+    }
 
-	public void onLoad() {
-		if (!addedToEnet && worldObj != null && !worldObj.isRemote && Loader.isModLoaded(ModIDs.IC2)) {
-			IC2ReactorHelper.energyLoadEvent(this, true);
-			addedToEnet = true;
-		}
-	}
+    @Override
+    protected NBTTagCompound writeProperties(NBTTagCompound tag) {
+        tag = super.writeProperties(tag);
+        tag.setDouble("energy", energy);
+        return tag;
+    }
 
-	@Override
-	public void invalidate() {
-		onChunkUnload();
-		super.invalidate();
-	}
+    public void onLoad() {
+        if (!addedToEnet && worldObj != null && !worldObj.isRemote && Loader.isModLoaded(ModIDs.IC2)) {
+            IC2ReactorHelper.energyLoadEvent(this, true);
+            addedToEnet = true;
+        }
+    }
 
-	@Override
-	public void onChunkUnload() {
-		if (addedToEnet && worldObj != null && !worldObj.isRemote && Loader.isModLoaded(ModIDs.IC2)) {
-			IC2ReactorHelper.energyLoadEvent(this, false);
-			addedToEnet = false;
-		}
-	}
+    @Override
+    public void invalidate() {
+        onChunkUnload();
+        super.invalidate();
+    }
 
-	protected void handleDischarger(int slot) {
-		ItemStack stack = getStackInSlot(slot);
-		if (stack != null && energy < capacity && stack.getItem() instanceof IElectricItem) {
-			IElectricItem ielectricitem = (IElectricItem) stack.getItem();
-			if (ielectricitem.canProvideEnergy(stack))
-				energy += ElectricItem.manager.discharge(stack, capacity - energy, tier, false, false, false);
-		}
-	}
+    @Override
+    public void onChunkUnload() {
+        if (addedToEnet && worldObj != null && !worldObj.isRemote && Loader.isModLoaded(ModIDs.IC2)) {
+            IC2ReactorHelper.energyLoadEvent(this, false);
+            addedToEnet = false;
+        }
+    }
 
-	protected void handleCharger(int slot) {
-		ItemStack stack = getStackInSlot(slot);
-		if (stack != null && energy > 0 && stack.getItem() instanceof IElectricItem) {
-			IElectricItem item = (IElectricItem) stack.getItem();
-			int tier = item.getTier(stack);
-			double amount = ElectricItem.manager.charge(stack, Double.POSITIVE_INFINITY, tier, true, true);
-			amount = Math.min(amount, energy);
-			if (amount > 0)
-				energy -= ElectricItem.manager.charge(stack, amount, tier, false, false);
-		}
-	}
+    protected void handleDischarger(int slot) {
+        ItemStack stack = getStackInSlot(slot);
+        if (stack != null && energy < capacity && stack.getItem() instanceof IElectricItem) {
+            IElectricItem ielectricitem = (IElectricItem) stack.getItem();
+            if (ielectricitem.canProvideEnergy(stack))
+                energy += ElectricItem.manager.discharge(stack, capacity - energy, tier, false, false, false);
+        }
+    }
 
-	// IEnergySource
-	@Override
-	public boolean emitsEnergyTo(TileEntity receiver, ForgeDirection side) {
-		return side == getFacingForge();
-	}
+    protected void handleCharger(int slot) {
+        ItemStack stack = getStackInSlot(slot);
+        if (stack != null && energy > 0 && stack.getItem() instanceof IElectricItem) {
+            IElectricItem item = (IElectricItem) stack.getItem();
+            int tier = item.getTier(stack);
+            double amount = ElectricItem.manager.charge(stack, Double.POSITIVE_INFINITY, tier, true, true);
+            amount = Math.min(amount, energy);
+            if (amount > 0) energy -= ElectricItem.manager.charge(stack, amount, tier, false, false);
+        }
+    }
 
-	@Override
-	public void drawEnergy(double amount) {
-		energy -= amount;
-	}
+    // IEnergySource
+    @Override
+    public boolean emitsEnergyTo(TileEntity receiver, ForgeDirection side) {
+        return side == getFacingForge();
+    }
 
-	@Override
-	public double getOfferedEnergy() {
-		return allowEmit ? energy >= output ? output : 0.0D : 0.0D; 
-	}
+    @Override
+    public void drawEnergy(double amount) {
+        energy -= amount;
+    }
 
-	@Override
-	public int getSourceTier() {
-		return tier;
-	}
+    @Override
+    public double getOfferedEnergy() {
+        return allowEmit ? energy >= output ? output : 0.0D : 0.0D;
+    }
 
-	// IEnergySink
-	@Override
-	public boolean acceptsEnergyFrom(TileEntity emitter, ForgeDirection side) {
-		return side != getFacingForge();
-	}
+    @Override
+    public int getSourceTier() {
+        return tier;
+    }
 
-	@Override
-	public double getDemandedEnergy() {
-		return Math.min(capacity - energy, output);
-	}
+    // IEnergySink
+    @Override
+    public boolean acceptsEnergyFrom(TileEntity emitter, ForgeDirection side) {
+        return side != getFacingForge();
+    }
 
-	@Override
-	public int getSinkTier() {
-		return tier;
-	}
+    @Override
+    public double getDemandedEnergy() {
+        return Math.min(capacity - energy, output);
+    }
 
-	@Override
-	public double injectEnergy(ForgeDirection directionFrom, double amount, double voltage) {
-		if (energy >= capacity)
-			return amount;
-		energy += amount;
-		return 0.0D;
-	}
+    @Override
+    public int getSinkTier() {
+        return tier;
+    }
+
+    @Override
+    public double injectEnergy(ForgeDirection directionFrom, double amount, double voltage) {
+        if (energy >= capacity) return amount;
+        energy += amount;
+        return 0.0D;
+    }
 }

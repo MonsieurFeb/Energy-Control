@@ -4,20 +4,20 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.util.IIcon;
 
 public class SlotChargeable extends SlotFilter {
-	public static IIcon slotIcon;
 
-	public SlotChargeable(IInventory inventory, int slotIndex, int x, int y) {
-		super(inventory, slotIndex, x, y);
-	}
+    public static IIcon slotIcon;
 
-	@Override
-	public IIcon getBackgroundIconIndex() {
-		return slotIcon;
-	}
+    public SlotChargeable(IInventory inventory, int slotIndex, int x, int y) {
+        super(inventory, slotIndex, x, y);
+    }
 
-	@Override
-	public int getSlotStackLimit() {
-		return 1;
-	}
+    @Override
+    public IIcon getBackgroundIconIndex() {
+        return slotIcon;
+    }
+
+    @Override
+    public int getSlotStackLimit() {
+        return 1;
+    }
 }
-

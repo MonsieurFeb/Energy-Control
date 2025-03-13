@@ -6,11 +6,11 @@ import java.lang.annotation.RetentionPolicy;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface At {
 
-	public InjectionPoint point();
+    public InjectionPoint point();
 
-	public Shift shift() default Shift.AFTER;
+    public Shift shift() default Shift.AFTER;
 
-	public String target() default "";
+    public String target() default "";
 
-	public int ordinal() default -1;
+    public int ordinal() default -1;
 }

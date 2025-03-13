@@ -1,5 +1,11 @@
 package com.zuxelus.energycontrol.gui;
 
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
+
 import com.zuxelus.energycontrol.EnergyControl;
 import com.zuxelus.energycontrol.containers.ContainerRangeTrigger;
 import com.zuxelus.energycontrol.gui.controls.CompactButton;
@@ -10,106 +16,108 @@ import com.zuxelus.zlib.gui.GuiContainerBase;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
 
 @SideOnly(Side.CLIENT)
 public class GuiRangeTrigger extends GuiContainerBase {
-	private static final ResourceLocation TEXTURE = new ResourceLocation(EnergyControl.MODID + ":textures/gui/gui_range_trigger.png");
 
-	private ContainerRangeTrigger container;
-	private ItemStack prevCard;
+    private static final ResourceLocation TEXTURE = new ResourceLocation(
+        EnergyControl.MODID + ":textures/gui/gui_range_trigger.png");
 
-	public GuiRangeTrigger(ContainerRangeTrigger container) {
-		super(container, "tile.range_trigger.name", TEXTURE);
-		this.container = container;
-		ySize = 190;
-	}
+    private ContainerRangeTrigger container;
+    private ItemStack prevCard;
 
-	private void initControls() {
-		ItemStack card = container.getSlot(TileEntityRangeTrigger.SLOT_CARD).getStack();
-		if (card != null && card.equals(prevCard))
-			return;
-		buttonList.clear();
-		prevCard = card;
-		// ten digits, up to 10 billions
-		for (int i = 0; i < 10; i++) {
-			buttonList.add(new CompactButton(i * 10, guiLeft + 30 + i * 12 + (i + 2) / 3 * 6, guiTop + 20, 12, 12, "-"));
-			buttonList.add(new CompactButton(i * 10 + 1, guiLeft + 30 + i * 12 + (i + 2) / 3 * 6, guiTop + 42, 12, 12, "+"));
-		}
-		for (int i = 0; i < 10; i++) {
-			buttonList.add(new CompactButton(100 + i * 10, guiLeft + 30 + i * 12 + (i + 2) / 3 * 6, guiTop + 57, 12, 12, "-"));
-			buttonList.add(new CompactButton(100 + i * 10 + 1, guiLeft + 30 + i * 12 + (i + 2) / 3 * 6, guiTop + 79, 12, 12, "+"));
-		}
-		buttonList.add(new GuiRangeTriggerInvertRedstone(0, guiLeft + 8, guiTop + 62, container.te));
-	}
+    public GuiRangeTrigger(ContainerRangeTrigger container) {
+        super(container, "tile.range_trigger.name", TEXTURE);
+        this.container = container;
+        ySize = 190;
+    }
 
-	@Override
-	public void initGui() {
-		super.initGui();
-		initControls();
-	}
+    private void initControls() {
+        ItemStack card = container.getSlot(TileEntityRangeTrigger.SLOT_CARD)
+            .getStack();
+        if (card != null && card.equals(prevCard)) return;
+        buttonList.clear();
+        prevCard = card;
+        // ten digits, up to 10 billions
+        for (int i = 0; i < 10; i++) {
+            buttonList
+                .add(new CompactButton(i * 10, guiLeft + 30 + i * 12 + (i + 2) / 3 * 6, guiTop + 20, 12, 12, "-"));
+            buttonList
+                .add(new CompactButton(i * 10 + 1, guiLeft + 30 + i * 12 + (i + 2) / 3 * 6, guiTop + 42, 12, 12, "+"));
+        }
+        for (int i = 0; i < 10; i++) {
+            buttonList.add(
+                new CompactButton(100 + i * 10, guiLeft + 30 + i * 12 + (i + 2) / 3 * 6, guiTop + 57, 12, 12, "-"));
+            buttonList.add(
+                new CompactButton(100 + i * 10 + 1, guiLeft + 30 + i * 12 + (i + 2) / 3 * 6, guiTop + 79, 12, 12, "+"));
+        }
+        buttonList.add(new GuiRangeTriggerInvertRedstone(0, guiLeft + 8, guiTop + 62, container.te));
+    }
 
-	private void renderValue(double value, int x, int y) {
-		x += 114;
-		for (int i = 0; i < 10; i++) {
-			byte digit = (byte) (value % 10);
-			String str = Byte.toString(digit);
-			fontRendererObj.drawString(str, x - 12 * i - fontRendererObj.getCharWidth(str.charAt(0)) / 2 + (9 - i + 2) / 3 * 6, y, 0x404040);
-			value /= 10;
-		}
-	}
+    @Override
+    public void initGui() {
+        super.initGui();
+        initControls();
+    }
 
-	@Override
-	protected void actionPerformed(GuiButton button) {
-		if (button instanceof GuiRangeTriggerInvertRedstone)
-			return;
+    private void renderValue(double value, int x, int y) {
+        x += 114;
+        for (int i = 0; i < 10; i++) {
+            byte digit = (byte) (value % 10);
+            String str = Byte.toString(digit);
+            fontRendererObj.drawString(
+                str,
+                x - 12 * i - fontRendererObj.getCharWidth(str.charAt(0)) / 2 + (9 - i + 2) / 3 * 6,
+                y,
+                0x404040);
+            value /= 10;
+        }
+    }
 
-		int id = button.id;
-		boolean isPlus = id % 2 == 1;
-		id /= 10;
-		int power = 9 - (id % 10);
-		id /= 10;
-		boolean isEnd = id % 2 == 1;
-		long initValue = isEnd ? container.te.levelEnd : container.te.levelStart;
-		long newValue = initValue;
-		long delta = (long) Math.pow(10, power);
-		long digit = (initValue / delta) % 10;
+    @Override
+    protected void actionPerformed(GuiButton button) {
+        if (button instanceof GuiRangeTriggerInvertRedstone) return;
 
-		if ((digit == 0 && !isPlus) || (digit == 9 && isPlus))
-			return;
+        int id = button.id;
+        boolean isPlus = id % 2 == 1;
+        id /= 10;
+        int power = 9 - (id % 10);
+        id /= 10;
+        boolean isEnd = id % 2 == 1;
+        long initValue = isEnd ? container.te.levelEnd : container.te.levelStart;
+        long newValue = initValue;
+        long delta = (long) Math.pow(10, power);
+        long digit = (initValue / delta) % 10;
 
-		if (isPlus && digit < 9)
-			newValue += delta;
-		else if (!isPlus && digit > 0)
-			newValue -= delta;
+        if ((digit == 0 && !isPlus) || (digit == 9 && isPlus)) return;
 
-		if (newValue != initValue && ((isEnd && newValue >= container.te.levelStart) || (!isEnd && container.te.levelEnd >= newValue))) {
-			TileEntityRangeTrigger trigger = container.te;
-			
-			NBTTagCompound tag = new NBTTagCompound();
-			tag.setLong("value", newValue);
-			if (isEnd) {
-				tag.setInteger("type", 3);
-				NetworkHelper.updateSeverTileEntity(trigger.xCoord, trigger.yCoord, trigger.zCoord, tag);
-				trigger.setLevelEnd(newValue);
-			} else {
-				tag.setInteger("type", 1);
-				NetworkHelper.updateSeverTileEntity(trigger.xCoord, trigger.yCoord, trigger.zCoord, tag);
-				trigger.setLevelStart(newValue);
-			}
-		}
-	}
+        if (isPlus && digit < 9) newValue += delta;
+        else if (!isPlus && digit > 0) newValue -= delta;
 
-	@Override
-	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
-		drawCenteredText(name, xSize, 6);
-		drawLeftAlignedText(I18n.format("container.inventory"), 8, (ySize - 96) + 2);
+        if (newValue != initValue
+            && ((isEnd && newValue >= container.te.levelStart) || (!isEnd && container.te.levelEnd >= newValue))) {
+            TileEntityRangeTrigger trigger = container.te;
 
-		renderValue(container.te.levelStart, 30, 33);
-		renderValue(container.te.levelEnd, 30, 70);
-	}
+            NBTTagCompound tag = new NBTTagCompound();
+            tag.setLong("value", newValue);
+            if (isEnd) {
+                tag.setInteger("type", 3);
+                NetworkHelper.updateSeverTileEntity(trigger.xCoord, trigger.yCoord, trigger.zCoord, tag);
+                trigger.setLevelEnd(newValue);
+            } else {
+                tag.setInteger("type", 1);
+                NetworkHelper.updateSeverTileEntity(trigger.xCoord, trigger.yCoord, trigger.zCoord, tag);
+                trigger.setLevelStart(newValue);
+            }
+        }
+    }
+
+    @Override
+    protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
+        drawCenteredText(name, xSize, 6);
+        drawLeftAlignedText(I18n.format("container.inventory"), 8, (ySize - 96) + 2);
+
+        renderValue(container.te.levelStart, 30, 33);
+        renderValue(container.te.levelEnd, 30, 70);
+    }
 }

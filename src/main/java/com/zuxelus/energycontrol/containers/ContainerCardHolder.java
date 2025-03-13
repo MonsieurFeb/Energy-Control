@@ -1,26 +1,25 @@
 package com.zuxelus.energycontrol.containers;
 
+import net.minecraft.entity.player.EntityPlayer;
+
 import com.zuxelus.energycontrol.init.ModItems;
 import com.zuxelus.energycontrol.items.InventoryCardHolder;
 import com.zuxelus.zlib.containers.ContainerBase;
 import com.zuxelus.zlib.containers.slots.SlotFilter;
 
-import net.minecraft.entity.player.EntityPlayer;
-
 public class ContainerCardHolder extends ContainerBase<InventoryCardHolder> {
 
-	public ContainerCardHolder(EntityPlayer player) {
-		super(new InventoryCardHolder(player.getHeldItem(), "item.card_holder.name"));
-		for (int i = 0; i < 6; i++)
-			for (int j = 0; j < 9; j++)
-				addSlotToContainer(new SlotFilter(te, j + i * 9, 8 + j * 18, 18 + i * 18));
+    public ContainerCardHolder(EntityPlayer player) {
+        super(new InventoryCardHolder(player.getHeldItem(), "item.card_holder.name"));
+        for (int i = 0; i < 6; i++)
+            for (int j = 0; j < 9; j++) addSlotToContainer(new SlotFilter(te, j + i * 9, 8 + j * 18, 18 + i * 18));
 
-		addPlayerInventorySlots(player, 167 + 18 * 3, ModItems.itemCardHolder);
-	}
+        addPlayerInventorySlots(player, 167 + 18 * 3, ModItems.itemCardHolder);
+    }
 
-	@Override
-	public void onContainerClosed(EntityPlayer player) { // 1.7.10
-		super.onContainerClosed(player);
-		te.writeToParentNBT(player);
-	}
+    @Override
+    public void onContainerClosed(EntityPlayer player) { // 1.7.10
+        super.onContainerClosed(player);
+        te.writeToParentNBT(player);
+    }
 }

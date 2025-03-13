@@ -1,5 +1,13 @@
 package com.zuxelus.energycontrol.tileentities;
 
+import net.minecraft.block.Block;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.Packet;
+import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
+
 import com.zuxelus.energycontrol.EnergyControl;
 import com.zuxelus.energycontrol.blocks.RemoteThermalMonitor;
 import com.zuxelus.energycontrol.blocks.ThermalMonitor;
@@ -10,199 +18,181 @@ import com.zuxelus.zlib.tileentities.TileEntityInventory;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraft.block.Block;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.Packet;
-import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 
 public class TileEntityThermalMonitor extends TileEntityInventory implements ITilePacketHandler {
-	private int heatLevel;
-	private boolean invertRedstone;
-	protected int status;
-	private boolean poweredBlock;
 
-	protected int updateTicker;
-	protected int tickRate;
+    private int heatLevel;
+    private boolean invertRedstone;
+    protected int status;
+    private boolean poweredBlock;
 
-	public TileEntityThermalMonitor() {
-		super("tile.thermal_monitor.name");
-		invertRedstone = false;
-		heatLevel = 500;
-		updateTicker = 0;
-		tickRate = EnergyControl.config.thermalMonitorRefreshPeriod;
-		status = -1;
-	}
+    protected int updateTicker;
+    protected int tickRate;
 
-	public int getHeatLevel() {
-		return heatLevel;
-	}
+    public TileEntityThermalMonitor() {
+        super("tile.thermal_monitor.name");
+        invertRedstone = false;
+        heatLevel = 500;
+        updateTicker = 0;
+        tickRate = EnergyControl.config.thermalMonitorRefreshPeriod;
+        status = -1;
+    }
 
-	public void setHeatLevel(int value) {
-		int old = heatLevel;
-		heatLevel = value;
-		if (!worldObj.isRemote && heatLevel != old)
-			notifyBlockUpdate();
-	}
+    public int getHeatLevel() {
+        return heatLevel;
+    }
 
-	public boolean getInvertRedstone() {
-		return invertRedstone;
-	}
+    public void setHeatLevel(int value) {
+        int old = heatLevel;
+        heatLevel = value;
+        if (!worldObj.isRemote && heatLevel != old) notifyBlockUpdate();
+    }
 
-	public void setInvertRedstone(boolean value) {
-		boolean old = invertRedstone;
-		invertRedstone = value;
-		if (!worldObj.isRemote && invertRedstone != old)
-			notifyBlockUpdate();
-	}
+    public boolean getInvertRedstone() {
+        return invertRedstone;
+    }
 
-	public int getStatus() {
-		return status;
-	}
+    public void setInvertRedstone(boolean value) {
+        boolean old = invertRedstone;
+        invertRedstone = value;
+        if (!worldObj.isRemote && invertRedstone != old) notifyBlockUpdate();
+    }
 
-	public void setStatus(int newStatus) {
-		status = newStatus;
-	}
+    public int getStatus() {
+        return status;
+    }
 
-	public boolean getPowered() {
-		return poweredBlock;
-	}
+    public void setStatus(int newStatus) {
+        status = newStatus;
+    }
 
-	@Override
-	public void onServerMessageReceived(NBTTagCompound tag) {
-		if (!tag.hasKey("type"))
-			return;
-		switch (tag.getInteger("type")) {
-		case 1:
-			if (tag.hasKey("value"))
-				setHeatLevel(tag.getInteger("value"));
-			break;
-		case 2:
-			if (tag.hasKey("value"))
-				setInvertRedstone(tag.getInteger("value") == 1);
-			break;
-		}
-	}
+    public boolean getPowered() {
+        return poweredBlock;
+    }
 
-	@Override
-	public void onClientMessageReceived(NBTTagCompound tag) { }
+    @Override
+    public void onServerMessageReceived(NBTTagCompound tag) {
+        if (!tag.hasKey("type")) return;
+        switch (tag.getInteger("type")) {
+            case 1:
+                if (tag.hasKey("value")) setHeatLevel(tag.getInteger("value"));
+                break;
+            case 2:
+                if (tag.hasKey("value")) setInvertRedstone(tag.getInteger("value") == 1);
+                break;
+        }
+    }
 
-	@Override
-	public Packet getDescriptionPacket() {
-		NBTTagCompound tag = new NBTTagCompound();
-		tag = writeProperties(tag);
-		tag.setInteger("status", status);
-		tag.setBoolean("poweredBlock", poweredBlock);
-		return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 0, tag);
-	}
+    @Override
+    public void onClientMessageReceived(NBTTagCompound tag) {}
 
-	@Override
-	public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
-		if (!worldObj.isRemote)
-			return;
-		readProperties(pkt.func_148857_g());
-	}
+    @Override
+    public Packet getDescriptionPacket() {
+        NBTTagCompound tag = new NBTTagCompound();
+        tag = writeProperties(tag);
+        tag.setInteger("status", status);
+        tag.setBoolean("poweredBlock", poweredBlock);
+        return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 0, tag);
+    }
 
-	@Override
-	protected void readProperties(NBTTagCompound tag) {
-		super.readProperties(tag);
-		if (tag.hasKey("heatLevel"))
-			heatLevel = tag.getInteger("heatLevel");
-		if (tag.hasKey("invert"))
-			invertRedstone = tag.getBoolean("invert");
-		if (tag.hasKey("status"))
-			setStatus(tag.getInteger("status"));
-		if (tag.hasKey("poweredBlock"))
-			poweredBlock = tag.getBoolean("poweredBlock");
-	}
+    @Override
+    public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
+        if (!worldObj.isRemote) return;
+        readProperties(pkt.func_148857_g());
+    }
 
-	@Override
-	public void readFromNBT(NBTTagCompound tag) {
-		super.readFromNBT(tag);
-		readProperties(tag);
-	}
+    @Override
+    protected void readProperties(NBTTagCompound tag) {
+        super.readProperties(tag);
+        if (tag.hasKey("heatLevel")) heatLevel = tag.getInteger("heatLevel");
+        if (tag.hasKey("invert")) invertRedstone = tag.getBoolean("invert");
+        if (tag.hasKey("status")) setStatus(tag.getInteger("status"));
+        if (tag.hasKey("poweredBlock")) poweredBlock = tag.getBoolean("poweredBlock");
+    }
 
-	@Override
-	protected NBTTagCompound writeProperties(NBTTagCompound tag) {
-		tag = super.writeProperties(tag);
-		tag.setInteger("heatLevel", heatLevel);
-		tag.setBoolean("invert", invertRedstone);
-		return tag;
-	}
+    @Override
+    public void readFromNBT(NBTTagCompound tag) {
+        super.readFromNBT(tag);
+        readProperties(tag);
+    }
 
-	@Override
-	public void writeToNBT(NBTTagCompound tag) {
-		super.writeToNBT(tag);
-		writeProperties(tag);
-	}
+    @Override
+    protected NBTTagCompound writeProperties(NBTTagCompound tag) {
+        tag = super.writeProperties(tag);
+        tag.setInteger("heatLevel", heatLevel);
+        tag.setBoolean("invert", invertRedstone);
+        return tag;
+    }
 
-	@Override
-	public void invalidate() {
-		worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord, worldObj.getBlock(xCoord, yCoord, zCoord));
-		super.invalidate();
-	}
+    @Override
+    public void writeToNBT(NBTTagCompound tag) {
+        super.writeToNBT(tag);
+        writeProperties(tag);
+    }
 
-	@Override
-	public void updateEntity() {
-		if (worldObj.isRemote)
-			return;
-	
-		if (updateTicker-- > 0)
-			return;
-		updateTicker = tickRate;
-		checkStatus();
-	}
+    @Override
+    public void invalidate() {
+        worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord, worldObj.getBlock(xCoord, yCoord, zCoord));
+        super.invalidate();
+    }
 
-	protected void checkStatus() {
-		int heat = CrossModLoader.getHeat(worldObj, xCoord, yCoord, zCoord);
-		int newStatus = heat == -1 ? -2 : heat >= heatLevel ? 1 : 0;
+    @Override
+    public void updateEntity() {
+        if (worldObj.isRemote) return;
 
-		if (newStatus != status) {
-			status = newStatus;
-			notifyBlockUpdate();
-			worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord, worldObj.getBlock(xCoord, yCoord, zCoord));
-		}
-	}
+        if (updateTicker-- > 0) return;
+        updateTicker = tickRate;
+        checkStatus();
+    }
 
-	public void notifyBlockUpdate() {
-		Block block = worldObj.getBlock(xCoord, yCoord, zCoord);
-		if (block instanceof ThermalMonitor || block instanceof RemoteThermalMonitor) {
-			boolean newValue = status < 0 ? false : status == 1 ? !invertRedstone : invertRedstone;
-			if (poweredBlock != newValue) {
-				poweredBlock = newValue;
-				worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord, block);
-			}
-			worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
-		}
-	}
+    protected void checkStatus() {
+        int heat = CrossModLoader.getHeat(worldObj, xCoord, yCoord, zCoord);
+        int newStatus = heat == -1 ? -2 : heat >= heatLevel ? 1 : 0;
 
-	@Override
-	protected boolean hasRotation() {
-		return true;
-	}
+        if (newStatus != status) {
+            status = newStatus;
+            notifyBlockUpdate();
+            worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord, worldObj.getBlock(xCoord, yCoord, zCoord));
+        }
+    }
 
-	// ------- Inventory ------- 
-	@Override
-	public int getSizeInventory() {
-		return 0;
-	}
+    public void notifyBlockUpdate() {
+        Block block = worldObj.getBlock(xCoord, yCoord, zCoord);
+        if (block instanceof ThermalMonitor || block instanceof RemoteThermalMonitor) {
+            boolean newValue = status < 0 ? false : status == 1 ? !invertRedstone : invertRedstone;
+            if (poweredBlock != newValue) {
+                poweredBlock = newValue;
+                worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord, block);
+            }
+            worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+        }
+    }
 
-	@Override
-	public boolean isItemValidForSlot(int index, ItemStack stack) {
-		return false;
-	}
+    @Override
+    protected boolean hasRotation() {
+        return true;
+    }
 
-	@Override
-	@SideOnly(Side.CLIENT)
-	public double getMaxRenderDistanceSquared() {
-		return 65536.0D;
-	}
+    // ------- Inventory -------
+    @Override
+    public int getSizeInventory() {
+        return 0;
+    }
 
-	// IWrenchable
-	@Override
-	public ItemStack getWrenchDrop(EntityPlayer player) {
-		return new ItemStack(ModItems.blockThermalMonitor);
-	}
+    @Override
+    public boolean isItemValidForSlot(int index, ItemStack stack) {
+        return false;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public double getMaxRenderDistanceSquared() {
+        return 65536.0D;
+    }
+
+    // IWrenchable
+    @Override
+    public ItemStack getWrenchDrop(EntityPlayer player) {
+        return new ItemStack(ModItems.blockThermalMonitor);
+    }
 }

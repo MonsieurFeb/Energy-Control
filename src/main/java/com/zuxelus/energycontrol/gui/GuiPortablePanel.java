@@ -2,6 +2,10 @@ package com.zuxelus.energycontrol.gui;
 
 import java.util.List;
 
+import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+
 import org.lwjgl.opengl.GL11;
 
 import com.zuxelus.energycontrol.EnergyControl;
@@ -14,67 +18,69 @@ import com.zuxelus.energycontrol.items.cards.ItemCardReader;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
 
 @SideOnly(Side.CLIENT)
 public class GuiPortablePanel extends GuiContainer {
-	private static final ResourceLocation TEXTURE = new ResourceLocation(
-			EnergyControl.MODID + ":textures/gui/gui_portable_panel.png");
 
-	private InventoryPortablePanel te;
+    private static final ResourceLocation TEXTURE = new ResourceLocation(
+        EnergyControl.MODID + ":textures/gui/gui_portable_panel.png");
 
-	public GuiPortablePanel(ContainerPortablePanel container) {
-		super(container);
-		this.te = container.te;
-		this.xSize = 226;
-		this.ySize = 226;
-	}
+    private InventoryPortablePanel te;
 
-	@Override
-	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
-		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-		mc.getTextureManager().bindTexture(TEXTURE);
-		int left = (width - xSize) / 2;
-		int top = (height - ySize) / 2;
-		drawTexturedModalRect(left, top, 0, 0, xSize, ySize);
-	}
+    public GuiPortablePanel(ContainerPortablePanel container) {
+        super(container);
+        this.te = container.te;
+        this.xSize = 226;
+        this.ySize = 226;
+    }
 
-	@Override
-	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
-		ItemStack stack = te.getStackInSlot(InventoryPortablePanel.SLOT_CARD);
-		if (ItemCardMain.isCard(stack)) {
-			ItemCardReader reader = new ItemCardReader(stack);
+    @Override
+    protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
+        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+        mc.getTextureManager()
+            .bindTexture(TEXTURE);
+        int left = (width - xSize) / 2;
+        int top = (height - ySize) / 2;
+        drawTexturedModalRect(left, top, 0, 0, xSize, ySize);
+    }
 
-			CardState state = reader.getState();
-			List<PanelString> joinedData;
-			if (state != CardState.OK && state != CardState.CUSTOM_ERROR)
-				joinedData = ItemCardReader.getStateMessage(state);
-			else
-				joinedData = ItemCardMain.getStringData(Integer.MAX_VALUE, reader, false, true);
+    @Override
+    protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
+        ItemStack stack = te.getStackInSlot(InventoryPortablePanel.SLOT_CARD);
+        if (ItemCardMain.isCard(stack)) {
+            ItemCardReader reader = new ItemCardReader(stack);
 
-			int row = 0;
-			for (PanelString panelString : joinedData) {
-				if (row < 14) {
-					if (panelString.textLeft != null)
-						fontRendererObj.drawString(panelString.textLeft, 9, row * 10 + 10, 0x06aee4);
-					if (panelString.textCenter != null)
-						fontRendererObj.drawString(panelString.textCenter, (168 - fontRendererObj.getStringWidth(panelString.textCenter)) / 2, row * 10 + 10, 0x06aee4);
-					if (panelString.textRight != null)
-						fontRendererObj.drawString(panelString.textRight, 168 - fontRendererObj.getStringWidth(panelString.textRight), row * 10 + 10, 0x06aee4);
-				} else if (row == 14)
-					fontRendererObj.drawString("...", 9, row * 10 + 10, 0x06aee4);
-				row++;
-			}
-		}
-	}
+            CardState state = reader.getState();
+            List<PanelString> joinedData;
+            if (state != CardState.OK && state != CardState.CUSTOM_ERROR)
+                joinedData = ItemCardReader.getStateMessage(state);
+            else joinedData = ItemCardMain.getStringData(Integer.MAX_VALUE, reader, false, true);
 
-	@Override
-	public void updateScreen() { // 1.7.10
-		super.updateScreen();
+            int row = 0;
+            for (PanelString panelString : joinedData) {
+                if (row < 14) {
+                    if (panelString.textLeft != null)
+                        fontRendererObj.drawString(panelString.textLeft, 9, row * 10 + 10, 0x06aee4);
+                    if (panelString.textCenter != null) fontRendererObj.drawString(
+                        panelString.textCenter,
+                        (168 - fontRendererObj.getStringWidth(panelString.textCenter)) / 2,
+                        row * 10 + 10,
+                        0x06aee4);
+                    if (panelString.textRight != null) fontRendererObj.drawString(
+                        panelString.textRight,
+                        168 - fontRendererObj.getStringWidth(panelString.textRight),
+                        row * 10 + 10,
+                        0x06aee4);
+                } else if (row == 14) fontRendererObj.drawString("...", 9, row * 10 + 10, 0x06aee4);
+                row++;
+            }
+        }
+    }
 
-		if (mc.thePlayer.getHeldItem() == null)
-			mc.thePlayer.closeScreen();
-	}
+    @Override
+    public void updateScreen() { // 1.7.10
+        super.updateScreen();
+
+        if (mc.thePlayer.getHeldItem() == null) mc.thePlayer.closeScreen();
+    }
 }

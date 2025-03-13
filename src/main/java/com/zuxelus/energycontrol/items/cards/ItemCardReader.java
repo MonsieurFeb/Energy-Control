@@ -5,6 +5,20 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTTagByte;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagDouble;
+import net.minecraft.nbt.NBTTagInt;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTTagLong;
+import net.minecraft.nbt.NBTTagString;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ChunkCoordinates;
+import net.minecraft.util.StatCollector;
+import net.minecraftforge.common.util.Constants;
+
 import com.zuxelus.energycontrol.EnergyControl;
 import com.zuxelus.energycontrol.api.CardState;
 import com.zuxelus.energycontrol.api.ICardReader;
@@ -13,346 +27,341 @@ import com.zuxelus.energycontrol.api.PanelString;
 import com.zuxelus.energycontrol.network.ChannelHandler;
 import com.zuxelus.energycontrol.tileentities.TileEntityInfoPanel;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.*;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ChunkCoordinates;
-import net.minecraft.util.StatCollector;
-import net.minecraftforge.common.util.Constants;
-
 public class ItemCardReader implements ICardReader {
-	private ItemStack card;
 
-	public ItemCardReader(ItemStack card) {
-		if (!ItemCardMain.isCard(card))
-			EnergyControl.logger.error("CardReader should be used for card items only.");
-		this.card = card;
-	}
+    private ItemStack card;
 
-	@Override
-	public ChunkCoordinates getTarget() {
-		NBTTagCompound tag = card.getTagCompound();
-		if (tag == null)
-			return null;
-		if (!tag.hasKey("x") || !tag.hasKey("y") || !tag.hasKey("z"))
-			return null;
-		return new ChunkCoordinates(tag.getInteger("x"), tag.getInteger("y"), tag.getInteger("z"));
-	}
+    public ItemCardReader(ItemStack card) {
+        if (!ItemCardMain.isCard(card)) EnergyControl.logger.error("CardReader should be used for card items only.");
+        this.card = card;
+    }
 
-	@Override
-	public void setInt(String name, Integer value) {
-		NBTTagCompound tag = ItemStackHelper.getTagCompound(card);
-		tag.setInteger(name, value);
-	}
+    @Override
+    public ChunkCoordinates getTarget() {
+        NBTTagCompound tag = card.getTagCompound();
+        if (tag == null) return null;
+        if (!tag.hasKey("x") || !tag.hasKey("y") || !tag.hasKey("z")) return null;
+        return new ChunkCoordinates(tag.getInteger("x"), tag.getInteger("y"), tag.getInteger("z"));
+    }
 
-	@Override
-	public Integer getInt(String name) {
-		NBTTagCompound tag = card.getTagCompound();
-		if (tag == null)
-			return 0;
-		return tag.getInteger(name);
-	}
+    @Override
+    public void setInt(String name, Integer value) {
+        NBTTagCompound tag = ItemStackHelper.getTagCompound(card);
+        tag.setInteger(name, value);
+    }
 
-	@Override
-	public void setLong(String name, Long value) {
-		NBTTagCompound tag = ItemStackHelper.getTagCompound(card);
-		tag.setLong(name, value);
-	}
+    @Override
+    public Integer getInt(String name) {
+        NBTTagCompound tag = card.getTagCompound();
+        if (tag == null) return 0;
+        return tag.getInteger(name);
+    }
 
-	@Override
-	public Long getLong(String name) {
-		NBTTagCompound tag = card.getTagCompound();
-		if (tag == null)
-			return 0L;
-		return tag.getLong(name);
-	}
+    @Override
+    public void setLong(String name, Long value) {
+        NBTTagCompound tag = ItemStackHelper.getTagCompound(card);
+        tag.setLong(name, value);
+    }
 
-	@Override
-	public void setDouble(String name, Double value) {
-		NBTTagCompound tag = ItemStackHelper.getTagCompound(card);
-		tag.setDouble(name, value);
-	}
+    @Override
+    public Long getLong(String name) {
+        NBTTagCompound tag = card.getTagCompound();
+        if (tag == null) return 0L;
+        return tag.getLong(name);
+    }
 
-	@Override
-	public Double getDouble(String name) {
-		NBTTagCompound tag = card.getTagCompound();
-		if (tag == null)
-			return 0.0;
-		return tag.getDouble(name);
-	}
+    @Override
+    public void setDouble(String name, Double value) {
+        NBTTagCompound tag = ItemStackHelper.getTagCompound(card);
+        tag.setDouble(name, value);
+    }
 
-	@Override
-	public void setString(String name, String value) {
-		if (name == null)
-			return;
-		NBTTagCompound tag = ItemStackHelper.getTagCompound(card);
-		tag.setString(name, value);
-	}
+    @Override
+    public Double getDouble(String name) {
+        NBTTagCompound tag = card.getTagCompound();
+        if (tag == null) return 0.0;
+        return tag.getDouble(name);
+    }
 
-	@Override
-	public String getString(String name) {
-		NBTTagCompound tag = card.getTagCompound();
-		if (tag == null)
-			return "";
-		return tag.getString(name);
-	}
+    @Override
+    public void setString(String name, String value) {
+        if (name == null) return;
+        NBTTagCompound tag = ItemStackHelper.getTagCompound(card);
+        tag.setString(name, value);
+    }
 
-	@Override
-	public void setByte(String name, Byte value) {
-		NBTTagCompound tag = ItemStackHelper.getTagCompound(card);
-		tag.setByte(name, value);
-	}
+    @Override
+    public String getString(String name) {
+        NBTTagCompound tag = card.getTagCompound();
+        if (tag == null) return "";
+        return tag.getString(name);
+    }
 
-	@Override
-	public Byte getByte(String name) {
-		NBTTagCompound tag = card.getTagCompound();
-		if (tag == null)
-			return 0;
-		return tag.getByte(name);
-	}
+    @Override
+    public void setByte(String name, Byte value) {
+        NBTTagCompound tag = ItemStackHelper.getTagCompound(card);
+        tag.setByte(name, value);
+    }
 
-	@Override
-	public void setBoolean(String name, Boolean value) {
-		NBTTagCompound tag = ItemStackHelper.getTagCompound(card);
-		tag.setBoolean(name, value);
-	}
+    @Override
+    public Byte getByte(String name) {
+        NBTTagCompound tag = card.getTagCompound();
+        if (tag == null) return 0;
+        return tag.getByte(name);
+    }
 
-	@Override
-	public Boolean getBoolean(String name) {
-		NBTTagCompound tag = card.getTagCompound();
-		if (tag == null)
-			return false;
-		return tag.getBoolean(name);
-	}
+    @Override
+    public void setBoolean(String name, Boolean value) {
+        NBTTagCompound tag = ItemStackHelper.getTagCompound(card);
+        tag.setBoolean(name, value);
+    }
 
-	@Override
-	public void setTitle(String title) {
-		setString("title", title);
-	}
+    @Override
+    public Boolean getBoolean(String name) {
+        NBTTagCompound tag = card.getTagCompound();
+        if (tag == null) return false;
+        return tag.getBoolean(name);
+    }
 
-	@Override
-	public String getTitle() {
-		return getString("title");
-	}
+    @Override
+    public void setTitle(String title) {
+        setString("title", title);
+    }
 
-	@Override
-	public void setId(String id) {
-		setString("id", id);
-	}
+    @Override
+    public String getTitle() {
+        return getString("title");
+    }
 
-	@Override
-	public String getId() {
-		String id = getString("id");
-		if (id.isEmpty()) {
-			id = UUID.randomUUID().toString();
-			setId(id);
-		}
-		return id;
-	}
+    @Override
+    public void setId(String id) {
+        setString("id", id);
+    }
 
-	@Override
-	public CardState getState() {
-		return CardState.fromInteger(getInt("state"));
-	}
+    @Override
+    public String getId() {
+        String id = getString("id");
+        if (id.isEmpty()) {
+            id = UUID.randomUUID()
+                .toString();
+            setId(id);
+        }
+        return id;
+    }
 
-	@Override
-	public void setState(CardState state) {
-		if (state != null)
-			setInt("state", state.getIndex());
-		else
-			setInt("state", CardState.NO_TARGET.getIndex());
-	}
+    @Override
+    public CardState getState() {
+        return CardState.fromInteger(getInt("state"));
+    }
 
-	@Override
-	public boolean hasField(String field) {
-		return ItemStackHelper.getTagCompound(card).hasKey(field);
-	}
+    @Override
+    public void setState(CardState state) {
+        if (state != null) setInt("state", state.getIndex());
+        else setInt("state", CardState.NO_TARGET.getIndex());
+    }
 
-	@Override
-	public void updateClient(ItemStack stack, TileEntity panel, int slot) {
-		if (panel instanceof TileEntityInfoPanel)
-			ChannelHandler.updateClientCard(card, (TileEntityInfoPanel) panel, slot);
-	}
+    @Override
+    public boolean hasField(String field) {
+        return ItemStackHelper.getTagCompound(card)
+            .hasKey(field);
+    }
 
-	@Override
-	public void updateServer(ItemStack stack, TileEntity panel, int slot) {
-		if (panel instanceof TileEntityInfoPanel)
-			ChannelHandler.updateServerCard(card, (TileEntityInfoPanel) panel, slot);
-	}
+    @Override
+    public void updateClient(ItemStack stack, TileEntity panel, int slot) {
+        if (panel instanceof TileEntityInfoPanel)
+            ChannelHandler.updateClientCard(card, (TileEntityInfoPanel) panel, slot);
+    }
 
-	@Override
-	public void setTag(String name, NBTBase value) {
-		NBTTagCompound tag = ItemStackHelper.getTagCompound(card);
-		if (value == null) {
-			tag.removeTag(name);
-		} else
-			tag.setTag(name, value);
-	}
+    @Override
+    public void updateServer(ItemStack stack, TileEntity panel, int slot) {
+        if (panel instanceof TileEntityInfoPanel)
+            ChannelHandler.updateServerCard(card, (TileEntityInfoPanel) panel, slot);
+    }
 
-	@Override
-	public NBTTagCompound getTag(String name) {
-		NBTTagCompound tag = ItemStackHelper.getTagCompound(card);
-		return (NBTTagCompound) tag.getTag(name);
-	}
+    @Override
+    public void setTag(String name, NBTBase value) {
+        NBTTagCompound tag = ItemStackHelper.getTagCompound(card);
+        if (value == null) {
+            tag.removeTag(name);
+        } else tag.setTag(name, value);
+    }
 
-	@Override
-	public NBTTagList getTagList(String name, int type) {
-		NBTTagCompound tag = ItemStackHelper.getTagCompound(card);
-		return tag.getTagList(name, type);
-	}
+    @Override
+    public NBTTagCompound getTag(String name) {
+        NBTTagCompound tag = ItemStackHelper.getTagCompound(card);
+        return (NBTTagCompound) tag.getTag(name);
+    }
 
-	@Override
-	public ArrayList<ItemStack> getItemStackList(boolean reset) {
-		NBTTagList list = getTagList("Items", Constants.NBT.TAG_COMPOUND);
-		ArrayList<ItemStack> result = new ArrayList<>();
-		for (int i = 0; i < list.tagCount(); i++) {
-			NBTTagCompound stackTag = list.getCompoundTagAt(i);
-			ItemStack stack = ItemStack.loadItemStackFromNBT(stackTag);
-			if (reset)
-				stack.stackSize = 1;
-			result.add(stack);
-		}
-		return result;
-	}
+    @Override
+    public NBTTagList getTagList(String name, int type) {
+        NBTTagCompound tag = ItemStackHelper.getTagCompound(card);
+        return tag.getTagList(name, type);
+    }
 
-	@Override
-	public void setItemStackList(ArrayList<ItemStack> list) {
-		NBTTagList values = new NBTTagList();
-		for (ItemStack stack : list) {
-			NBTTagCompound stackTag = new NBTTagCompound();
-			stack.writeToNBT(stackTag);
-			values.appendTag(stackTag);
-		}
-		setTag("Items", values);
-	}
+    @Override
+    public ArrayList<ItemStack> getItemStackList(boolean reset) {
+        NBTTagList list = getTagList("Items", Constants.NBT.TAG_COMPOUND);
+        ArrayList<ItemStack> result = new ArrayList<>();
+        for (int i = 0; i < list.tagCount(); i++) {
+            NBTTagCompound stackTag = list.getCompoundTagAt(i);
+            ItemStack stack = ItemStack.loadItemStackFromNBT(stackTag);
+            if (reset) stack.stackSize = 1;
+            result.add(stack);
+        }
+        return result;
+    }
 
-	@Override
-	public void removeField(String name) {
-		NBTTagCompound tag = ItemStackHelper.getTagCompound(card);
-		tag.removeTag(name);
-	}
+    @Override
+    public void setItemStackList(ArrayList<ItemStack> list) {
+        NBTTagList values = new NBTTagList();
+        for (ItemStack stack : list) {
+            NBTTagCompound stackTag = new NBTTagCompound();
+            stack.writeToNBT(stackTag);
+            values.appendTag(stackTag);
+        }
+        setTag("Items", values);
+    }
 
-	@Override
-	public int getCardCount() {
-		return getInt("cardCount");
-	}
+    @Override
+    public void removeField(String name) {
+        NBTTagCompound tag = ItemStackHelper.getTagCompound(card);
+        tag.removeTag(name);
+    }
 
-	@Override
-	public int getCardType() {
-		return card.getItemDamage();
-	}
+    @Override
+    public int getCardCount() {
+        return getInt("cardCount");
+    }
 
-	@Override
-	public void reset() {
-		ChunkCoordinates pos = getTarget();
-		String title = getTitle();
-		String id = getId();
-		card.setTagCompound(new NBTTagCompound());
-		if (pos != null)
-			ItemStackHelper.setCoordinates(card, pos.posX, pos.posY, pos.posZ);
-		if (!title.isEmpty())
-			setTitle(title);
-		setId(id);
-	}
+    @Override
+    public int getCardType() {
+        return card.getItemDamage();
+    }
 
-	@Override
-	public void copyFrom(NBTTagCompound nbt) {
-		for (Object obj : nbt.func_150296_c()) {
-			String name = (String) obj; // 1.7.10 cast
-			NBTBase tag = nbt.getTag(name);
-			byte type = tag.getId();
-			if (type == 8)
-				setString(name, ((NBTTagString) tag).func_150285_a_());
-			else if (type == 3)
-				setInt(name, ((NBTTagInt) tag).func_150287_d());
-			else if (type == 6)
-				setDouble(name, ((NBTTagDouble) tag).func_150286_g());
-			else if (type == 4)
-				setLong(name, ((NBTTagLong) tag).func_150291_c());
-			else if (type == 1)
-				setByte(name, ((NBTTagByte) tag).func_150290_f());
-			else if (type == 10)
-				setTag(name, tag.copy());
-		}
-	}
+    @Override
+    public void reset() {
+        ChunkCoordinates pos = getTarget();
+        String title = getTitle();
+        String id = getId();
+        card.setTagCompound(new NBTTagCompound());
+        if (pos != null) ItemStackHelper.setCoordinates(card, pos.posX, pos.posY, pos.posZ);
+        if (!title.isEmpty()) setTitle(title);
+        setId(id);
+    }
 
-	public static List<PanelString> getStateMessage(CardState state) {
-		List<PanelString> result = new LinkedList<>();
-		PanelString line = new PanelString();
-		switch (state) {
-		case OUT_OF_RANGE:
-			line.textCenter = StatCollector.translateToLocal("msg.ec.InfoPanelOutOfRange");
-			break;
-		case INVALID_CARD:
-			line.textCenter = StatCollector.translateToLocal("msg.ec.InfoPanelInvalidCard");
-			break;
-		case NO_TARGET:
-			line.textCenter = StatCollector.translateToLocal("msg.ec.InfoPanelNoTarget");
-			break;
-		case CUSTOM_ERROR:
-			break;
-		case OK:
-			break;
-		default:
-			break;
-		}
-		result.add(line);
-		return result;
-	}
+    @Override
+    public void copyFrom(NBTTagCompound nbt) {
+        for (Object obj : nbt.func_150296_c()) {
+            String name = (String) obj; // 1.7.10 cast
+            NBTBase tag = nbt.getTag(name);
+            byte type = tag.getId();
+            if (type == 8) setString(name, ((NBTTagString) tag).func_150285_a_());
+            else if (type == 3) setInt(name, ((NBTTagInt) tag).func_150287_d());
+            else if (type == 6) setDouble(name, ((NBTTagDouble) tag).func_150286_g());
+            else if (type == 4) setLong(name, ((NBTTagLong) tag).func_150291_c());
+            else if (type == 1) setByte(name, ((NBTTagByte) tag).func_150290_f());
+            else if (type == 10) setTag(name, tag.copy());
+        }
+    }
 
-	@Override
-	public List<PanelString> getTitleList() {
-		List<PanelString> result = new LinkedList<>();
-		String title = getTitle();
-		if (title != null && !title.isEmpty()) {
-			PanelString titleString = new PanelString();
-			titleString.textCenter = title;
-			result.add(0, titleString);
-		}
-		return result;
-	}
+    public static List<PanelString> getStateMessage(CardState state) {
+        List<PanelString> result = new LinkedList<>();
+        PanelString line = new PanelString();
+        switch (state) {
+            case OUT_OF_RANGE:
+                line.textCenter = StatCollector.translateToLocal("msg.ec.InfoPanelOutOfRange");
+                break;
+            case INVALID_CARD:
+                line.textCenter = StatCollector.translateToLocal("msg.ec.InfoPanelInvalidCard");
+                break;
+            case NO_TARGET:
+                line.textCenter = StatCollector.translateToLocal("msg.ec.InfoPanelNoTarget");
+                break;
+            case CUSTOM_ERROR:
+                break;
+            case OK:
+                break;
+            default:
+                break;
+        }
+        result.add(line);
+        return result;
+    }
 
-	public List<PanelString> getAllData() {
-		NBTTagCompound nbt = card.getTagCompound();
-		if (nbt == null)
-			return null;
+    @Override
+    public List<PanelString> getTitleList() {
+        List<PanelString> result = new LinkedList<>();
+        String title = getTitle();
+        if (title != null && !title.isEmpty()) {
+            PanelString titleString = new PanelString();
+            titleString.textCenter = title;
+            result.add(0, titleString);
+        }
+        return result;
+    }
 
-		nbt = (NBTTagCompound) card.getTagCompound().copy(); // 1.7.10 cast
-		List<PanelString> result = new LinkedList<>();
+    public List<PanelString> getAllData() {
+        NBTTagCompound nbt = card.getTagCompound();
+        if (nbt == null) return null;
 
-		if (nbt.hasKey("title") && nbt.getTag("title").getId() == 8) {
-			String title = nbt.getString("title");
-			if (!title.equals(""))
-				result.add(new PanelString(String.format("title : %s", title)));
-			nbt.removeTag("title");
-		}
-		if (nbt.hasKey("x") && nbt.hasKey("y") && nbt.hasKey("z") && nbt.getTag("x").getId() == 3
-				&& nbt.getTag("y").getId() == 3 && nbt.getTag("z").getId() == 3) {
-			result.add(new PanelString(String.format("xyz : %s %s %s", nbt.getInteger("x"), nbt.getInteger("y"), nbt.getInteger("z"))));
-			nbt.removeTag("x");
-			nbt.removeTag("y");
-			nbt.removeTag("z");
-		}
-		if (nbt.hasKey("cardCount") && nbt.getTag("cardCount").getId() == 3) {
-			int count = nbt.getInteger("cardCount");
-			result.add(new PanelString(String.format("cardCount : %s", count)));
-			nbt.removeTag("cardCount");
-			for (int i = 0; i < count; i++) {
-				String[] value = { String.format("_%dx", i), String.format("_%dy", i), String.format("_%dz", i) };
-				if (nbt.hasKey(value[0]) && nbt.hasKey(value[1]) && nbt.hasKey(value[2])
-						&& nbt.getTag(value[0]).getId() == 3 && nbt.getTag(value[1]).getId() == 3
-						&& nbt.getTag(value[2]).getId() == 3) {
-					result.add(new PanelString(String.format("_%dxyz : %s %s %s", i, nbt.getInteger(value[0]), nbt.getInteger(value[1]), nbt.getInteger(value[2]))));
-					nbt.removeTag(value[0]);
-					nbt.removeTag(value[1]);
-					nbt.removeTag(value[2]);
-				}
-			}
-		}
-		for (Object name : nbt.func_150296_c()) {
-			NBTBase tag = nbt.getTag((String) name); // 1.7.10 cast
-			result.add(new PanelString(String.format("%s : %s", name, tag.toString())));
-		}
-		return result;
-	}
+        nbt = (NBTTagCompound) card.getTagCompound()
+            .copy(); // 1.7.10 cast
+        List<PanelString> result = new LinkedList<>();
+
+        if (nbt.hasKey("title") && nbt.getTag("title")
+            .getId() == 8) {
+            String title = nbt.getString("title");
+            if (!title.equals("")) result.add(new PanelString(String.format("title : %s", title)));
+            nbt.removeTag("title");
+        }
+        if (nbt.hasKey("x") && nbt.hasKey("y")
+            && nbt.hasKey("z")
+            && nbt.getTag("x")
+                .getId() == 3
+            && nbt.getTag("y")
+                .getId() == 3
+            && nbt.getTag("z")
+                .getId() == 3) {
+            result.add(
+                new PanelString(
+                    String.format("xyz : %s %s %s", nbt.getInteger("x"), nbt.getInteger("y"), nbt.getInteger("z"))));
+            nbt.removeTag("x");
+            nbt.removeTag("y");
+            nbt.removeTag("z");
+        }
+        if (nbt.hasKey("cardCount") && nbt.getTag("cardCount")
+            .getId() == 3) {
+            int count = nbt.getInteger("cardCount");
+            result.add(new PanelString(String.format("cardCount : %s", count)));
+            nbt.removeTag("cardCount");
+            for (int i = 0; i < count; i++) {
+                String[] value = { String.format("_%dx", i), String.format("_%dy", i), String.format("_%dz", i) };
+                if (nbt.hasKey(value[0]) && nbt.hasKey(value[1])
+                    && nbt.hasKey(value[2])
+                    && nbt.getTag(value[0])
+                        .getId() == 3
+                    && nbt.getTag(value[1])
+                        .getId() == 3
+                    && nbt.getTag(value[2])
+                        .getId() == 3) {
+                    result.add(
+                        new PanelString(
+                            String.format(
+                                "_%dxyz : %s %s %s",
+                                i,
+                                nbt.getInteger(value[0]),
+                                nbt.getInteger(value[1]),
+                                nbt.getInteger(value[2]))));
+                    nbt.removeTag(value[0]);
+                    nbt.removeTag(value[1]);
+                    nbt.removeTag(value[2]);
+                }
+            }
+        }
+        for (Object name : nbt.func_150296_c()) {
+            NBTBase tag = nbt.getTag((String) name); // 1.7.10 cast
+            result.add(new PanelString(String.format("%s : %s", name, tag.toString())));
+        }
+        return result;
+    }
 }
